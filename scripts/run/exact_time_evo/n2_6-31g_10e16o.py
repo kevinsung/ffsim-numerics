@@ -1,0 +1,72 @@
+from __future__ import annotations
+
+import logging
+from pathlib import Path
+import os
+
+from ffsim_numerics.exact_time_evo_task import (
+    ExactTimeEvolutionTask,
+    run_exact_time_evolution_task,
+)
+from tqdm import tqdm
+
+filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S %z",
+    filename=filename,
+)
+
+DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
+DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
+MOLECULES_CATALOGUE_DIR = Path(os.environ.get("MOLECULES_CATALOGUE_DIR"))
+MAX_PROCESSES = 24
+
+molecule_name = "n2"
+basis = "6-31g"
+nelectron, norb = 10, 16
+molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
+overwrite = True
+
+bond_distance = 1.0
+time = 1.0
+
+tasks = [
+    ExactTimeEvolutionTask(
+        molecule_basename=molecule_basename,
+        bond_distance=bond_distance,
+        time=time,
+        initial_state="hartree-fock",
+    ),
+    ExactTimeEvolutionTask(
+        molecule_basename=molecule_basename,
+        bond_distance=bond_distance,
+        time=time,
+        initial_state="random",
+        seed=46417,
+    ),
+]
+
+# with ProcessPoolExecutor(MAX_PROCESSES) as executor:
+#     with tqdm(total=len(tasks)) as progress:
+#         for task in tasks:
+#             future = executor.submit(
+#                 run_exact_time_evolution_task,
+#                 task,
+#                 data_dir=DATA_DIR,
+#                 molecules_catalogue_dir=MOLECULES_CATALOGUE_DIR,
+#                 overwrite=overwrite,
+#             )
+#             future.add_done_callback(lambda _: progress.update())
+
+with tqdm(total=len(tasks)) as progress:
+    for task in tasks:
+        run_exact_time_evolution_task(
+            task,
+            data_dir=DATA_DIR,
+            molecules_catalogue_dir=MOLECULES_CATALOGUE_DIR,
+            overwrite=overwrite,
+        )
+        progress.update()

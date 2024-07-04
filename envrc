@@ -1,0 +1,6 @@
+export FFSIM_NUMERICS_DATA_ROOT=/disk1/kevinsung@ibm.com/ffsim_numerics
+export MOLECULES_CATALOGUE_DIR=/home/kevinsung@ibm.com/projects/molecules_catalogue
+export OMP_NUM_THREADS=1
+export RAYON_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
