@@ -62,7 +62,7 @@ tasks = [
 ]
 
 
-if MAX_PROCESSES is None:
+if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
         run_double_factorized_trotter_gate_count_task(
             task,

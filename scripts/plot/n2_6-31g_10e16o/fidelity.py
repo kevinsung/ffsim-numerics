@@ -104,23 +104,31 @@ linestyles = ["--", ":"]
 
 fig, ax = plt.subplots(1, 1)
 
-for (order, n_steps_range), marker, color in zip(
-    n_steps_choices.items(), markers, colors
-):
-    fidelities, cx_counts, cx_depths = zip(
-        *[data[initial_state, n_steps, order] for n_steps in n_steps_range]
+for (initial_state, _), alpha in zip(initial_state_and_seed, alphas):
+    for (order, n_steps_range), marker, color in zip(
+        n_steps_choices.items(), markers, colors
+    ):
+        fidelities, cx_counts, cx_depths = zip(
+            *[data[initial_state, n_steps, order] for n_steps in n_steps_range]
+        )
+        infidelities = 1 - np.array(fidelities)
+        ax.plot(
+            cx_counts,
+            infidelities,
+            f"{marker}--",
+            label=f"Order {order}, {initial_state}",
+            color=color,
+            alpha=alpha,
+        )
+
+    ax.set_yscale("log")
+    ax.legend()
+    ax.set_xlabel("Two-qubit gate count")
+    ax.set_ylabel(r"$1 - |\langle \psi | \psi^* \rangle|$")
+    ax.set_title(f"{molecule_name} {basis} ({nelectron}e, {norb}o)")
+
+    filename = os.path.join(
+        plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
     )
-    infidelities = 1 - np.array(fidelities)
-    ax.plot(cx_counts, infidelities, f"{marker}--", label=f"Order {order}", color=color)
-
-ax.set_yscale("log")
-ax.legend()
-ax.set_xlabel("Two-qubit gate count")
-ax.set_ylabel(r"$1 - |\langle \psi | \psi^* \rangle|$")
-ax.set_title(f"{molecule_name} {basis} ({nelectron}e, {norb}o)")
-
-filename = os.path.join(
-    plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
-)
 plt.savefig(filename)
 plt.close()
