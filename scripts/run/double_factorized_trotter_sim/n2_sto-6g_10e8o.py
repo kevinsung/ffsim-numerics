@@ -70,8 +70,8 @@ if MAX_PROCESSES == 1:
             overwrite=overwrite,
         )
 else:
-    with ProcessPoolExecutor(MAX_PROCESSES) as executor:
-        with tqdm(total=len(tasks)) as progress:
+    with tqdm(total=len(tasks)) as progress:
+        with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
                     run_double_factorized_trotter_sim_task,

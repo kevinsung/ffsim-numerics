@@ -86,7 +86,7 @@ def run_exact_time_evolution_task(
     result = scipy.sparse.linalg.expm_multiply(
         -1j * task.time * linop,
         reference_state,
-        traceA=trace,
+        traceA=-1j * task.time * trace,
     )
     t1 = timeit.default_timer()
     logger.info(f"Done applying time evolution in {t1 - t0} seconds.")
