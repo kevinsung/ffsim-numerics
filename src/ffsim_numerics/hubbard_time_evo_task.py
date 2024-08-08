@@ -40,6 +40,7 @@ class HubbardTimeEvolutionTask:
             / f"chemical_potential-{self.chemical_potential}"
             / f"nearest_neighbor_interaction-{self.nearest_neighbor_interaction}"
             / f"periodic-{self.periodic}"
+            / f"filling_denominator-{self.filling_denominator}"
             / f"time-{self.time:.1f}"
             / f"initial_state-{self.initial_state}"
         )

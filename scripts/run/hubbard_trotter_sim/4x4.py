@@ -25,7 +25,7 @@ DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 MAX_PROCESSES = 48
 
-overwrite = True
+overwrite = False
 
 time = 1.0
 
@@ -35,7 +35,7 @@ interactions = [1.0, 2.0, 4.0, 8.0]
 periodic_choices = [False, True]
 filling_denominators = [8, 4, 2]
 
-n_steps_choices = {0: range(1, 20, 6), 1: range(1, 10, 3), 2: range(1, 3)}
+n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
 n_steps_and_order = list(
     itertools.chain(
         *(

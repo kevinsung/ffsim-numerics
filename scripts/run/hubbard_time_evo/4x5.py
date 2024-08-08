@@ -23,17 +23,17 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 96
+MAX_PROCESSES = 1
 
-overwrite = True
+overwrite = False
 
 time = 1.0
 
 norb_x = 4
-norb_y = 4
+norb_y = 5
 interactions = [1.0, 2.0, 4.0, 8.0]
 periodic_choices = [False, True]
-filling_denominators = [8, 4, 2]
+filling_denominators = [8]
 
 tasks = [
     HubbardTimeEvolutionTask(
