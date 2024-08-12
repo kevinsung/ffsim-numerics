@@ -7,7 +7,7 @@ name = "ffsim-numerics"
 description = "Numerical studies using ffsim."
 version = "0.0.0"
 requires-python = ">=3.10"
-dependencies = ["ffsim", "qiskit[visualization] >= 1.0"]
+dependencies = ["ffsim", "qiskit[visualization] >= 1.0", "tqdm"]
 
 [project.optional-dependencies]
 dev = ["mypy", "pytest", "pre-commit", "ruff"]
