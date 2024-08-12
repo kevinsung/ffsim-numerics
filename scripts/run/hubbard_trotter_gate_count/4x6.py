@@ -23,12 +23,12 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 96
+MAX_PROCESSES = 24
 
 overwrite = False
 
-norb_x = 5
-norb_y = 5
+norb_x = 4
+norb_y = 6
 
 periodic_choices = [False, True]
 n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}

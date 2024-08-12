@@ -6,9 +6,9 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from ffsim_numerics.hubbard_trotter_gate_count_task import (
-    HubbardTrotterGateCountTask,
-    run_hubbard_trotter_gate_count_task,
+from ffsim_numerics.hubbard_trotter_sim_task import (
+    HubbardTrotterSimTask,
+    run_hubbard_trotter_sim_task,
 )
 from tqdm import tqdm
 
@@ -23,14 +23,18 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 96
+MAX_PROCESSES = 48
 
 overwrite = False
 
-norb_x = 5
-norb_y = 5
+time = 1.0
 
+norb_x = 4
+norb_y = 6
+interactions = [1.0, 2.0, 4.0, 8.0]
 periodic_choices = [False, True]
+filling_denominators = [8]
+
 n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
 n_steps_and_order = list(
     itertools.chain(
@@ -40,25 +44,37 @@ n_steps_and_order = list(
         )
     )
 )
-initial_state_and_seed = [("hartree-fock", None), ("random", 46417)]
+initial_state_and_seed = [("one-body", None), ("random", 46417)]
+
 
 tasks = [
-    HubbardTrotterGateCountTask(
+    HubbardTrotterSimTask(
         norb_x=norb_x,
         norb_y=norb_y,
+        tunneling=1.0,
+        interaction=interaction,
+        chemical_potential=0.0,
+        nearest_neighbor_interaction=0.0,
         periodic=periodic,
+        filling_denominator=filling_denominator,
+        time=time,
         n_steps=n_steps,
         order=order,
+        initial_state=initial_state,
+        seed=seed,
     )
-    for periodic, (n_steps, order) in itertools.product(
-        periodic_choices, n_steps_and_order
+    for interaction, periodic, filling_denominator in itertools.product(
+        interactions, periodic_choices, filling_denominators
+    )
+    for (n_steps, order), (initial_state, seed) in itertools.product(
+        n_steps_and_order, initial_state_and_seed
     )
 ]
 
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_hubbard_trotter_gate_count_task(
+        run_hubbard_trotter_sim_task(
             task,
             data_dir=DATA_DIR,
             overwrite=overwrite,
@@ -68,7 +84,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_hubbard_trotter_gate_count_task,
+                    run_hubbard_trotter_sim_task,
                     task,
                     data_dir=DATA_DIR,
                     overwrite=overwrite,
