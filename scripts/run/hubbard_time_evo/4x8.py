@@ -30,8 +30,8 @@ overwrite = False
 time = 1.0
 
 norb_x = 4
-norb_y = 6
-interactions = [2.0, 4.0, 8.0]
+norb_y = 8
+interactions = [2.0]
 periodic_choices = [False]
 filling_denominators = [8]
 
