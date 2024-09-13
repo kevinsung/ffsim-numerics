@@ -42,7 +42,7 @@ def run_double_factorized_trotter_sim_task(
     task: DoubleFactorizedTrotterSimTask,
     *,
     data_dir: Path,
-    molecules_catalogue_dir: Path,
+    molecules_catalog_dir: Path,
     overwrite: bool = True,
 ) -> DoubleFactorizedTrotterSimTask:
     logger.info(f"{task} Starting...")
@@ -55,7 +55,7 @@ def run_double_factorized_trotter_sim_task(
 
     # Get molecular data and molecular Hamiltonian
     molecule_filepath = (
-        molecules_catalogue_dir
+        molecules_catalog_dir
         / "data"
         / "molecular_data"
         / f"{task.molecule_basename}_d-{task.bond_distance:.2f}.json.xz"

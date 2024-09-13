@@ -40,7 +40,7 @@ def run_exact_time_evolution_task(
     task: ExactTimeEvolutionTask,
     *,
     data_dir: Path,
-    molecules_catalogue_dir: Path,
+    molecules_catalog_dir: Path,
     overwrite: bool = True,
 ) -> ExactTimeEvolutionTask:
     logger.info(f"{task} Starting...")
@@ -53,7 +53,7 @@ def run_exact_time_evolution_task(
 
     # Get molecular data and molecular Hamiltonian
     molecule_filepath = (
-        molecules_catalogue_dir
+        molecules_catalog_dir
         / "data"
         / "molecular_data"
         / f"{task.molecule_basename}_d-{task.bond_distance:.2f}.json.xz"

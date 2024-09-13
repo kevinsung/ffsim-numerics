@@ -14,7 +14,7 @@ from ffsim_numerics.double_factorized_trotter_sim_task import (
 from ffsim_numerics.exact_time_evo_task import ExactTimeEvolutionTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
-MOLECULES_CATALOGUE_DIR = os.environ.get("MOLECULES_CATALOGUE_DIR")
+MOLECULES_CATALOG_DIR = os.environ.get("MOLECULES_CATALOG_DIR")
 
 
 molecule_name = "n2"
