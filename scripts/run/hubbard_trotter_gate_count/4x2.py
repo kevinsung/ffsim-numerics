@@ -6,9 +6,9 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from ffsim_numerics.hubbard_time_evo_task import (
-    HubbardTimeEvolutionTask,
-    run_hubbard_time_evolution_task,
+from ffsim_numerics.hubbard_trotter_gate_count_task import (
+    HubbardTrotterGateCountTask,
+    run_hubbard_trotter_gate_count_task,
 )
 from tqdm import tqdm
 
@@ -27,37 +27,38 @@ MAX_PROCESSES = 96
 
 overwrite = False
 
-time = 1.0
-
 norb_x = 4
-norb_y = 4
-interactions = [1.0, 2.0, 4.0, 8.0]
+norb_y = 2
+
 periodic_choices = [False, True]
-filling_denominators = [8, 4, 2]
+n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
+n_steps_and_order = list(
+    itertools.chain(
+        *(
+            [(n_steps, order) for n_steps in n_steps_range]
+            for order, n_steps_range in n_steps_choices.items()
+        )
+    )
+)
+initial_state_and_seed = [("hartree-fock", None), ("random", 46417)]
 
 tasks = [
-    HubbardTimeEvolutionTask(
-        time=time,
+    HubbardTrotterGateCountTask(
         norb_x=norb_x,
         norb_y=norb_y,
-        tunneling=1.0,
-        interaction=interaction,
-        chemical_potential=0.0,
-        nearest_neighbor_interaction=0.0,
         periodic=periodic,
-        filling_denominator=filling_denominator,
-        initial_state="random",
-        seed=46417,
+        n_steps=n_steps,
+        order=order,
     )
-    for interaction, periodic, filling_denominator in itertools.product(
-        interactions, periodic_choices, filling_denominators
+    for periodic, (n_steps, order) in itertools.product(
+        periodic_choices, n_steps_and_order
     )
 ]
 
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_hubbard_time_evolution_task(
+        run_hubbard_trotter_gate_count_task(
             task,
             data_dir=DATA_DIR,
             overwrite=overwrite,
@@ -67,7 +68,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_hubbard_time_evolution_task,
+                    run_hubbard_trotter_gate_count_task,
                     task,
                     data_dir=DATA_DIR,
                     overwrite=overwrite,

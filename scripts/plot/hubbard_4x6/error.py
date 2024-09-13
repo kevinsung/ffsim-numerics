@@ -118,7 +118,7 @@ for (order, n_steps_range), marker, color in zip(
 ax.set_yscale("log")
 ax.legend()
 ax.set_xlabel("Two-qubit gate count")
-ax.set_ylabel(r"$|\psi - \psi^*|$")
+ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
 ax.set_title(
     rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction}"
 )

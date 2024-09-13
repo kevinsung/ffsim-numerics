@@ -13,15 +13,15 @@ DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 
 
 norb_x = 4
-norb_y = 4
+norb_y = 8
 
 plots_dir = os.path.join("plots", f"hubbard_{norb_x}x{norb_y}")
 os.makedirs(plots_dir, exist_ok=True)
 
 
-interactions = [1.0, 2.0, 4.0, 8.0]
-periodic_choices = [False, True]
-filling_denominators = [8, 4, 2]
+interactions = [2.0]
+periodic_choices = [False]
+filling_denominators = [8]
 time = 1.0
 
 n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
@@ -35,9 +35,9 @@ n_steps_and_order = list(
 )
 initial_state_and_seed = [("one-body", None), ("random", 46417)]
 
-interaction = 1.0
+interaction = 2.0
 periodic = False
-filling_denominator = 4
+filling_denominator = 8
 
 data = {}
 for initial_state, seed in initial_state_and_seed:
