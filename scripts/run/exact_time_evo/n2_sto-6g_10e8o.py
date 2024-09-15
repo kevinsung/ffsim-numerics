@@ -37,10 +37,7 @@ molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
 time = 1.0
-
 n_random = 10
-rng = np.random.default_rng(46417)
-seeds = rng.choice(1 << 16, size=n_random)
 
 tasks = [
     ExactTimeEvolutionTask(
