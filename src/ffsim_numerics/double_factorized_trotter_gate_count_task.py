@@ -18,11 +18,6 @@ class DoubleFactorizedTrotterGateCountTask:
     time: float
     n_steps: int
     order: int
-    initial_state: str  # options: hartree-fock, random
-    seed: int | None = None
-
-    def __post_init__(self):
-        assert self.initial_state in ("hartree-fock", "random")
 
     @property
     def dirpath(self) -> Path:
@@ -32,10 +27,7 @@ class DoubleFactorizedTrotterGateCountTask:
             / f"time-{self.time:.1f}"
             / f"n_steps-{self.n_steps}"
             / f"order-{self.order}"
-            / f"initial_state-{self.initial_state}"
         )
-        if self.initial_state == "random":
-            path /= f"seed-{self.seed}"
         return path
 
 

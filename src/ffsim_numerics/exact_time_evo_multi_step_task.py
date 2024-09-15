@@ -6,17 +6,19 @@ from pathlib import Path
 
 import ffsim
 import numpy as np
+import scipy.optimize
+import scipy.sparse.linalg
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
-class DoubleFactorizedTrotterSimTask:
+class ExactTimeEvoMultiStepTask:
     molecule_basename: str
     bond_distance: float
-    time: float
-    n_steps: int
-    order: int
+    start: float
+    stop: float
+    step: float
     initial_state: str  # options: hartree-fock, random
     entropy: int | None = None
     spawn_index: int = 0
@@ -29,9 +31,7 @@ class DoubleFactorizedTrotterSimTask:
         path = (
             Path(self.molecule_basename)
             / f"bond_distance-{self.bond_distance:.2f}"
-            / f"time-{self.time:.1f}"
-            / f"n_steps-{self.n_steps}"
-            / f"order-{self.order}"
+            / f"start-{self.start:.1f}_stop-{self.stop:.1f}_step-{self.step:.1f}"
             / f"initial_state-{self.initial_state}"
         )
         if self.initial_state == "random":
@@ -40,13 +40,13 @@ class DoubleFactorizedTrotterSimTask:
         return path
 
 
-def run_double_factorized_trotter_sim_task(
-    task: DoubleFactorizedTrotterSimTask,
+def run_exact_time_evo_multi_step_task(
+    task: ExactTimeEvoMultiStepTask,
     *,
     data_dir: Path,
     molecules_catalog_dir: Path,
     overwrite: bool = True,
-) -> DoubleFactorizedTrotterSimTask:
+) -> ExactTimeEvoMultiStepTask:
     logger.info(f"{task} Starting...")
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
@@ -67,10 +67,8 @@ def run_double_factorized_trotter_sim_task(
     nelec = mol_data.nelec
     mol_hamiltonian = mol_data.hamiltonian
 
-    # Get double-factorized Hamiltonian
-    df_hamiltonian = ffsim.DoubleFactorizedHamiltonian.from_molecular_hamiltonian(
-        mol_hamiltonian
-    )
+    # Initialize linear operator
+    linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 
     # Get initial state
     match task.initial_state:
@@ -83,20 +81,27 @@ def run_double_factorized_trotter_sim_task(
                 ffsim.dim(norb, nelec), seed=child_rng
             )
 
-    # Apply Trotter evolution
-    logger.info("Applying Trotter evolution...")
+    # Apply time evolution
+    logger.info("Computing Hamiltonian trace...")
     t0 = timeit.default_timer()
-    result = ffsim.simulate_trotter_double_factorized(
+    trace = ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec)
+    t1 = timeit.default_timer()
+    logger.info(f"Done computing trace in {t1 - t0} seconds.")
+    logger.info("Applying time evolution...")
+    t0 = timeit.default_timer()
+    result = scipy.sparse.linalg.expm_multiply(
+        -1j * linop,
         reference_state,
-        df_hamiltonian,
-        time=task.time,
-        norb=norb,
-        nelec=nelec,
-        n_steps=task.n_steps,
-        order=task.order,
+        start=task.start,
+        stop=task.stop,
+        num=round((task.stop - task.start) / task.step) + 1,
+        traceA=-1j * trace,
     )
     t1 = timeit.default_timer()
     logger.info(f"Done applying time evolution in {t1 - t0} seconds.")
+
+    fidelities = [np.abs(np.vdot(vec, reference_state)) for vec in result]
+    logger.info(f"Fidelities with reference state: {fidelities}.")
 
     # Save result to disk
     logger.info("Saving result to disk...")

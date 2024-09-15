@@ -1,13 +1,13 @@
 import logging
-import scipy.sparse.linalg
 import os
 import timeit
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
 import ffsim
 import numpy as np
 import scipy.optimize
+import scipy.sparse.linalg
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,8 @@ class ExactTimeEvolutionTask:
     bond_distance: float
     time: float
     initial_state: str  # options: hartree-fock, random
-    seed: int | None = None
+    entropy: int | None = None
+    spawn_index: int = 0
 
     def __post_init__(self):
         assert self.initial_state in ("hartree-fock", "random")
@@ -32,7 +33,8 @@ class ExactTimeEvolutionTask:
             / f"initial_state-{self.initial_state}"
         )
         if self.initial_state == "random":
-            path /= f"seed-{self.seed}"
+            path /= f"root_seed-{self.entropy}"
+            path /= f"spawn_index-{self.spawn_index}"
         return path
 
 
@@ -71,8 +73,10 @@ def run_exact_time_evolution_task(
         case "hartree-fock":
             reference_state = ffsim.hartree_fock_state(norb, nelec)
         case "random":
+            parent_rng = np.random.default_rng(task.entropy)
+            child_rng = parent_rng.spawn(task.spawn_index + 1)[-1]
             reference_state = ffsim.random.random_state_vector(
-                ffsim.dim(norb, nelec), seed=task.seed
+                ffsim.dim(norb, nelec), seed=child_rng
             )
 
     # Apply time evolution
