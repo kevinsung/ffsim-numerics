@@ -16,9 +16,8 @@ logger = logging.getLogger(__name__)
 class ExactTimeEvoMultiStepTask:
     molecule_basename: str
     bond_distance: float
-    start: float
-    stop: float
-    step: float
+    time_step: float
+    n_steps: int
     initial_state: str  # options: hartree-fock, random
     entropy: int | None = None
     spawn_index: int = 0
@@ -31,7 +30,8 @@ class ExactTimeEvoMultiStepTask:
         path = (
             Path(self.molecule_basename)
             / f"bond_distance-{self.bond_distance:.2f}"
-            / f"start-{self.start:.1f}_stop-{self.stop:.1f}_step-{self.step:.1f}"
+            / f"time_step-{self.time_step:.1f}"
+            / f"n_steps-{self.n_steps}"
             / f"initial_state-{self.initial_state}"
         )
         if self.initial_state == "random":
@@ -92,15 +92,15 @@ def run_exact_time_evo_multi_step_task(
     result = scipy.sparse.linalg.expm_multiply(
         -1j * linop,
         reference_state,
-        start=task.start,
-        stop=task.stop,
-        num=round((task.stop - task.start) / task.step) + 1,
+        start=0.0,
+        stop=task.time_step * task.n_steps,
+        num=task.n_steps + 1,
         traceA=-1j * trace,
     )
     t1 = timeit.default_timer()
     logger.info(f"Done applying time evolution in {t1 - t0} seconds.")
 
-    fidelities = [np.abs(np.vdot(vec, reference_state)) for vec in result]
+    fidelities = [float(np.abs(np.vdot(vec, reference_state))) for vec in result]
     logger.info(f"Fidelities with reference state: {fidelities}.")
 
     # Save result to disk

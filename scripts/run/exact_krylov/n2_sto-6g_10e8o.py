@@ -8,10 +8,7 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from ffsim_numerics.exact_time_evo_multi_step_task import (
-    ExactTimeEvoMultiStepTask,
-    run_exact_time_evo_multi_step_task,
-)
+from ffsim_numerics.exact_krylov_task import ExactKrylovTask, run_exact_krylov_task
 
 filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
 os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -38,7 +35,7 @@ time_step = 0.1
 n_steps = 20
 
 tasks = [
-    ExactTimeEvoMultiStepTask(
+    ExactKrylovTask(
         molecule_basename=molecule_basename,
         bond_distance=bond_distance,
         time_step=time_step,
@@ -50,7 +47,7 @@ tasks = [
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_exact_time_evo_multi_step_task(
+        run_exact_krylov_task(
             task,
             data_dir=DATA_DIR,
             molecules_catalog_dir=MOLECULES_CATALOG_DIR,
@@ -61,7 +58,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_exact_time_evo_multi_step_task,
+                    run_exact_krylov_task,
                     task,
                     data_dir=DATA_DIR,
                     molecules_catalog_dir=MOLECULES_CATALOG_DIR,

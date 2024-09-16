@@ -64,6 +64,7 @@ def run_molecule_trotter_error_task(
         logger.info(f"Data for {task} already exists. Skipping...")
         return task
 
+    # Load exact state
     this_task = ExactTimeEvolutionTask(
         molecule_basename=task.molecule_basename,
         bond_distance=task.bond_distance,
@@ -72,11 +73,10 @@ def run_molecule_trotter_error_task(
         entropy=task.entropy,
         spawn_index=task.spawn_index,
     )
-    filepath = (
-        DATA_ROOT / "exact_time_evo" / this_task.dirpath / "result.npy"
-    )
+    filepath = DATA_ROOT / "exact_time_evo" / this_task.dirpath / "result.npy"
     with open(filepath, "rb") as f:
         exact_state = np.load(filepath)
+
     # Compute error
     this_task = DoubleFactorizedTrotterSimTask(
         molecule_basename=task.molecule_basename,
