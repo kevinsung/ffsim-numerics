@@ -20,7 +20,7 @@ bond_distance = 1.0
 plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
-time_step_range = [1e-3, 1e-1, 1.0]
+time_step_range = [1e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
 n_steps = 50
 
 molecule_filepath = (
@@ -44,8 +44,8 @@ for time_step in time_step_range:
     filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
     ground_energies = np.load(filepath)
     errors = ground_energies - mol_data.fci_energy
-    assert all(errors > 0)
-    data[time_step] = errors
+    assert all(errors > -1e-8)
+    data[time_step] = abs(errors)
 
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]

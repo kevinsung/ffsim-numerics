@@ -7,9 +7,9 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from ffsim_numerics.df_trotter_krylov_vecs_task import (
-    DoubleFactorizedTrotterKrylovVecsTask,
-    run_double_factorized_trotter_krylov_vecs_task,
+from ffsim_numerics.exact_krylov_vecs_task import (
+    ExactKrylovVecsTask,
+    run_exact_krylov_vecs_task,
 )
 
 filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
@@ -28,35 +28,29 @@ MAX_PROCESSES = 96
 OVERWRITE = True
 
 molecule_name = "n2"
-basis = "sto-6g"
-nelectron, norb = 10, 8
+basis = "6-31g"
+nelectron, norb = 10, 16
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step_range = [1e-1, 2e-1]
+time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
 krylov_n_steps = 50
-order_range = [0, 1]
-trotter_n_steps_range = list(range(1, 6))
 
 tasks = [
-    DoubleFactorizedTrotterKrylovVecsTask(
+    ExactKrylovVecsTask(
         molecule_basename=molecule_basename,
         bond_distance=bond_distance,
-        krylov_n_steps=krylov_n_steps,
+        n_steps=krylov_n_steps,
         time_step=time_step,
-        trotter_n_steps=trotter_n_steps,
-        order=order,
         initial_state="hartree-fock",
     )
     for time_step in time_step_range
-    for order in order_range
-    for trotter_n_steps in trotter_n_steps_range
 ]
 
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_double_factorized_trotter_krylov_vecs_task(
+        run_exact_krylov_vecs_task(
             task,
             data_dir=DATA_DIR,
             molecules_catalog_dir=MOLECULES_CATALOG_DIR,
@@ -67,7 +61,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_double_factorized_trotter_krylov_vecs_task,
+                    run_exact_krylov_vecs_task,
                     task,
                     data_dir=DATA_DIR,
                     molecules_catalog_dir=MOLECULES_CATALOG_DIR,

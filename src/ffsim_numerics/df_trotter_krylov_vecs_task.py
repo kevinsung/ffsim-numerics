@@ -31,7 +31,7 @@ class DoubleFactorizedTrotterKrylovVecsTask:
             Path(self.molecule_basename)
             / f"bond_distance-{self.bond_distance:.2f}"
             / f"krylov_n_steps-{self.krylov_n_steps}"
-            / f"time_step-{self.time_step:.1f}"
+            / f"time_step-{self.time_step:.3f}"
             / f"trotter_n_steps-{self.trotter_n_steps}"
             / f"order-{self.order}"
             / f"initial_state-{self.initial_state}"

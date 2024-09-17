@@ -34,9 +34,9 @@ nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step = 1e-1
+time_step_range = [1e-1, 2e-1]
 krylov_n_steps = 50
-order = 1
+order_range = [0, 1]
 trotter_n_steps_range = list(range(1, 6))
 
 tasks = [
@@ -50,6 +50,8 @@ tasks = [
         initial_state="hartree-fock",
         lindep=1e-12,
     )
+    for time_step in time_step_range
+    for order in order_range
     for trotter_n_steps in trotter_n_steps_range
 ]
 

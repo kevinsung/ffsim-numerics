@@ -6,18 +6,17 @@ from pathlib import Path
 
 import ffsim
 import numpy as np
-import scipy.optimize
 import scipy.sparse.linalg
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True, kw_only=True)
-class ExactTimeEvoMultiStepTask:
+class ExactKrylovVecsTask:
     molecule_basename: str
     bond_distance: float
-    time_step: float
     n_steps: int
+    time_step: float
     initial_state: str  # options: hartree-fock, random
     entropy: int | None = None
     spawn_index: int = 0
@@ -30,8 +29,8 @@ class ExactTimeEvoMultiStepTask:
         path = (
             Path(self.molecule_basename)
             / f"bond_distance-{self.bond_distance:.2f}"
+            / f"krylov_n_steps-{self.n_steps}"
             / f"time_step-{self.time_step:.3f}"
-            / f"n_steps-{self.n_steps}"
             / f"initial_state-{self.initial_state}"
         )
         if self.initial_state == "random":
@@ -40,13 +39,13 @@ class ExactTimeEvoMultiStepTask:
         return path
 
 
-def run_exact_time_evo_multi_step_task(
-    task: ExactTimeEvoMultiStepTask,
+def run_exact_krylov_vecs_task(
+    task: ExactKrylovVecsTask,
     *,
     data_dir: Path,
     molecules_catalog_dir: Path,
     overwrite: bool = True,
-) -> ExactTimeEvoMultiStepTask:
+) -> ExactKrylovVecsTask:
     logger.info(f"{task} Starting...")
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
@@ -81,32 +80,31 @@ def run_exact_time_evo_multi_step_task(
                 ffsim.dim(norb, nelec), seed=child_rng
             )
 
-    # Apply time evolution
+    # Construct Krylov states
     logger.info("Computing Hamiltonian trace...")
     t0 = timeit.default_timer()
     trace = ffsim.trace(mol_hamiltonian, norb=norb, nelec=nelec)
     t1 = timeit.default_timer()
     logger.info(f"Done computing trace in {t1 - t0} seconds.")
-    logger.info("Applying time evolution...")
+    logger.info("Constructing Krylov states...")
+    krylov_vecs = np.zeros((task.n_steps + 1, ffsim.dim(norb, nelec)), dtype=complex)
+    krylov_vecs[0] = reference_state
+    vec = reference_state
     t0 = timeit.default_timer()
-    result = scipy.sparse.linalg.expm_multiply(
-        -1j * linop,
-        reference_state,
-        start=0.0,
-        stop=task.time_step * task.n_steps,
-        num=task.n_steps + 1,
-        traceA=-1j * trace,
-    )
+    for i in range(1, task.n_steps + 1):
+        vec = scipy.sparse.linalg.expm_multiply(
+            -1j * task.time_step * linop,
+            vec,
+            traceA=-1j * task.time_step * trace,
+        )
+        krylov_vecs[i] = vec
     t1 = timeit.default_timer()
-    logger.info(f"Done applying time evolution in {t1 - t0} seconds.")
-
-    fidelities = [float(np.abs(np.vdot(vec, reference_state))) for vec in result]
-    logger.info(f"Fidelities with reference state: {fidelities}.")
+    logger.info(f"Done constructing Krylov states in {t1 - t0} seconds.")
 
     # Save result to disk
     logger.info("Saving result to disk...")
     with open(result_filepath, "wb") as f:
-        np.save(f, result)
+        np.save(f, krylov_vecs)
 
     logger.info(f"{task} Done.")
     return task

@@ -10,7 +10,7 @@ import scipy.optimize
 import scipy.sparse.linalg
 from pyscf.lib.linalg_helper import safe_eigh
 
-from ffsim_numerics.exact_krylov_vecs_task import ExactKrylovVecsTask
+from ffsim_numerics.exact_time_evo_multi_step_task import ExactTimeEvoMultiStepTask
 
 logger = logging.getLogger(__name__)
 
@@ -75,14 +75,16 @@ def run_exact_krylov_task(
     linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 
     # Load Krylov vectors
-    this_task = ExactKrylovVecsTask(
+    this_task = ExactTimeEvoMultiStepTask(
         molecule_basename=task.molecule_basename,
         bond_distance=task.bond_distance,
-        n_steps=task.n_steps,
         time_step=task.time_step,
+        n_steps=task.n_steps,
         initial_state=task.initial_state,
     )
-    filepath = DATA_ROOT / "exact_krylov_vecs" / this_task.dirpath / "result.npy"
+    filepath = (
+        DATA_ROOT / "exact_time_evo_multi_step" / this_task.dirpath / "result.npy"
+    )
     with open(filepath, "rb") as f:
         krylov_vecs = np.load(filepath)
 
