@@ -31,8 +31,8 @@ nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step = 0.1
-n_steps = 20
+time_step_range = [1e-3, 1e-2, 1e-1, 1.0]
+n_steps = 50
 
 tasks = [
     ExactKrylovTask(
@@ -42,6 +42,7 @@ tasks = [
         n_steps=n_steps,
         initial_state="hartree-fock",
     )
+    for time_step in time_step_range
 ]
 
 

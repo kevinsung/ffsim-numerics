@@ -1,0 +1,74 @@
+import os
+from pathlib import Path
+
+import ffsim
+import matplotlib.pyplot as plt
+import numpy as np
+
+from ffsim_numerics.exact_krylov_task import ExactKrylovTask
+
+DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
+MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
+
+
+molecule_name = "n2"
+basis = "sto-6g"
+nelectron, norb = 10, 8
+molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
+bond_distance = 1.0
+
+plots_dir = os.path.join("plots", molecule_basename)
+os.makedirs(plots_dir, exist_ok=True)
+
+time_step_range = [1e-3, 1e-1, 1.0]
+n_steps = 50
+
+molecule_filepath = (
+    MOLECULES_CATALOG_DIR
+    / "data"
+    / "molecular_data"
+    / f"{molecule_basename}_d-{bond_distance:.2f}.json.xz"
+)
+mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
+
+data = {}
+for time_step in time_step_range:
+    task = ExactKrylovTask(
+        molecule_basename=molecule_basename,
+        bond_distance=bond_distance,
+        time_step=time_step,
+        n_steps=n_steps,
+        initial_state="hartree-fock",
+    )
+    filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
+    ground_energies = np.load(filepath)
+    errors = ground_energies - mol_data.fci_energy
+    assert all(errors > 0)
+    data[time_step] = errors
+
+
+markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
+prop_cycle = plt.rcParams["axes.prop_cycle"]
+colors = prop_cycle.by_key()["color"]
+alphas = [0.5, 1.0]
+linestyles = ["--", ":"]
+
+fig, ax = plt.subplots(1, 1)
+
+for time_step, color in zip(time_step_range, colors):
+    errors = data[time_step]
+    ax.plot(range(2, n_steps + 3), errors, label=f"∆t={time_step}")
+
+ax.set_xticks(range(2, n_steps + 3, 6))
+ax.set_yscale("log")
+ax.legend()
+ax.set_xlabel("Krylov space dimension")
+ax.set_ylabel(r"$|E - E_{\text{exact}}|$")
+ax.set_title(f"{molecule_name} {basis} ({nelectron}e, {norb}o)")
+
+filename = os.path.join(
+    plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
+)
+plt.savefig(filename)
+plt.close()
+print(f"Saved figure to {filename}.")

@@ -25,16 +25,16 @@ logging.basicConfig(
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
-MAX_PROCESSES = 1
+MAX_PROCESSES = 8
 OVERWRITE = True
 
 molecule_name = "n2"
-basis = "sto-6g"
-nelectron, norb = 10, 8
+basis = "6-31g"
+nelectron, norb = 10, 16
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step_range = [1e-3, 1e-2, 1e-1, 1.0]
+time_step_range = [0.01, 0.1, 1.0]
 n_steps = 50
 
 tasks = [

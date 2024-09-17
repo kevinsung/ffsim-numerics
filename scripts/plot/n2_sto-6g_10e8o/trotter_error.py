@@ -9,7 +9,7 @@ import numpy as np
 from ffsim_numerics.molecule_trotter_error_task import MoleculeTrotterErrorTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
-MOLECULES_CATALOG_DIR = os.environ.get("MOLECULES_CATALOG_DIR")
+MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 ENTROPY = 111000497606135858027052605013196846814
 
 
@@ -91,7 +91,7 @@ for (order, n_steps_range), marker, color in zip(
 ax.set_yscale("log")
 ax.legend()
 ax.set_xlabel("Two-qubit gate count")
-ax.set_ylabel(r"$|\psi - \psi^*|$")
+ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
 ax.set_title(f"{molecule_name} {basis} ({nelectron}e, {norb}o)")
 
 filename = os.path.join(

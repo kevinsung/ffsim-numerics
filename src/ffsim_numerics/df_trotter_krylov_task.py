@@ -10,7 +10,9 @@ import scipy.optimize
 import scipy.sparse.linalg
 from pyscf.lib.linalg_helper import safe_eigh
 
-from ffsim_numerics.exact_time_evo_multi_step_task import ExactTimeEvoMultiStepTask
+from ffsim_numerics.df_trotter_krylov_vecs_task import (
+    DoubleFactorizedTrotterKrylovVecsTask,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +20,13 @@ DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 
 
 @dataclass(frozen=True, kw_only=True)
-class ExactKrylovTask:
+class DoubleFactorizedTrotterKrylovTask:
     molecule_basename: str
     bond_distance: float
+    krylov_n_steps: int
     time_step: float
-    n_steps: int
+    trotter_n_steps: int
+    order: int
     initial_state: str  # options: hartree-fock
 
     def __post_init__(self):
@@ -33,20 +37,22 @@ class ExactKrylovTask:
         path = (
             Path(self.molecule_basename)
             / f"bond_distance-{self.bond_distance:.2f}"
+            / f"krylov_n_steps-{self.krylov_n_steps}"
             / f"time_step-{self.time_step:.1f}"
-            / f"n_steps-{self.n_steps}"
+            / f"trotter_n_steps-{self.trotter_n_steps}"
+            / f"order-{self.order}"
             / f"initial_state-{self.initial_state}"
         )
         return path
 
 
-def run_exact_krylov_task(
-    task: ExactKrylovTask,
+def run_double_factorized_trotter_krylov_task(
+    task: DoubleFactorizedTrotterKrylovTask,
     *,
     data_dir: Path,
     molecules_catalog_dir: Path,
     overwrite: bool = True,
-) -> ExactKrylovTask:
+) -> DoubleFactorizedTrotterKrylovTask:
     logger.info(f"{task} Starting...")
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
@@ -73,15 +79,17 @@ def run_exact_krylov_task(
     linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
 
     # Load Krylov vectors
-    this_task = ExactTimeEvoMultiStepTask(
+    this_task = DoubleFactorizedTrotterKrylovVecsTask(
         molecule_basename=task.molecule_basename,
         bond_distance=task.bond_distance,
+        krylov_n_steps=task.krylov_n_steps,
         time_step=task.time_step,
-        n_steps=task.n_steps,
+        trotter_n_steps=task.trotter_n_steps,
+        order=task.order,
         initial_state=task.initial_state,
     )
     filepath = (
-        DATA_ROOT / "exact_time_evo_multi_step" / this_task.dirpath / "result.npy"
+        DATA_ROOT / "df_trotter_krylov_vecs" / this_task.dirpath / "result.npy"
     )
     with open(filepath, "rb") as f:
         krylov_vecs = np.load(filepath)
@@ -92,7 +100,7 @@ def run_exact_krylov_task(
 
     # Compute ground state energies
     n_vecs, dim = krylov_vecs.shape
-    assert n_vecs == task.n_steps + 1
+    assert n_vecs == task.krylov_n_steps + 1
     eye = scipy.sparse.linalg.LinearOperator(
         shape=(dim, dim), matvec=lambda x: x, dtype=complex
     )

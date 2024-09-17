@@ -5,12 +5,11 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-import numpy as np
 from tqdm import tqdm
 
-from ffsim_numerics.exact_time_evo_multi_step_task import (
-    ExactTimeEvoMultiStepTask,
-    run_exact_time_evo_multi_step_task,
+from ffsim_numerics.df_trotter_krylov_vecs_task import (
+    DoubleFactorizedTrotterKrylovVecsTask,
+    run_double_factorized_trotter_krylov_vecs_task,
 )
 
 filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
@@ -27,6 +26,7 @@ DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__
 MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 MAX_PROCESSES = 1
 OVERWRITE = True
+ENTROPY = 111000497606135858027052605013196846814
 
 molecule_name = "n2"
 basis = "sto-6g"
@@ -34,24 +34,27 @@ nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step_range = [1e-3, 1e-2, 1e-1, 1.0]
-n_steps = 50
+time_step = 1e-1
+krylov_n_steps = 50
+trotter_n_steps_range = list(range(1, 6))
 
 tasks = [
-    ExactTimeEvoMultiStepTask(
+    DoubleFactorizedTrotterKrylovVecsTask(
         molecule_basename=molecule_basename,
         bond_distance=bond_distance,
+        krylov_n_steps=krylov_n_steps,
         time_step=time_step,
-        n_steps=n_steps,
+        trotter_n_steps=trotter_n_steps,
+        order=0,
         initial_state="hartree-fock",
     )
-    for time_step in time_step_range
+    for trotter_n_steps in trotter_n_steps_range
 ]
 
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_exact_time_evo_multi_step_task(
+        run_double_factorized_trotter_krylov_vecs_task(
             task,
             data_dir=DATA_DIR,
             molecules_catalog_dir=MOLECULES_CATALOG_DIR,
@@ -62,7 +65,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_exact_time_evo_multi_step_task,
+                    run_double_factorized_trotter_krylov_vecs_task,
                     task,
                     data_dir=DATA_DIR,
                     molecules_catalog_dir=MOLECULES_CATALOG_DIR,
