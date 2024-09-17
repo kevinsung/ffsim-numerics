@@ -33,6 +33,7 @@ bond_distance = 1.0
 
 time_step_range = [1e-3, 1e-2, 1e-1, 1.0]
 n_steps = 50
+lindep_range = [1e-3, 1e-5, 1e-8, 1e-12, 1e-15]
 
 tasks = [
     ExactKrylovTask(
@@ -41,8 +42,10 @@ tasks = [
         time_step=time_step,
         n_steps=n_steps,
         initial_state="hartree-fock",
+        lindep=lindep,
     )
     for time_step in time_step_range
+    for lindep in lindep_range
 ]
 
 

@@ -25,7 +25,7 @@ logging.basicConfig(
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
-MAX_PROCESSES = 1
+MAX_PROCESSES = 96
 OVERWRITE = True
 
 molecule_name = "n2"
@@ -36,6 +36,7 @@ bond_distance = 1.0
 
 time_step = 1e-1
 krylov_n_steps = 50
+order = 1
 trotter_n_steps_range = list(range(1, 6))
 
 tasks = [
@@ -45,8 +46,9 @@ tasks = [
         krylov_n_steps=krylov_n_steps,
         time_step=time_step,
         trotter_n_steps=trotter_n_steps,
-        order=0,
+        order=order,
         initial_state="hartree-fock",
+        lindep=1e-12,
     )
     for trotter_n_steps in trotter_n_steps_range
 ]

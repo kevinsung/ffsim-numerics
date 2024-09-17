@@ -24,6 +24,7 @@ class ExactKrylovTask:
     time_step: float
     n_steps: int
     initial_state: str  # options: hartree-fock
+    lindep: float
 
     def __post_init__(self):
         assert self.initial_state in ["hartree-fock"]
@@ -36,6 +37,7 @@ class ExactKrylovTask:
             / f"time_step-{self.time_step:.1f}"
             / f"n_steps-{self.n_steps}"
             / f"initial_state-{self.initial_state}"
+            / f"lindep-{self.lindep}"
         )
         return path
 
@@ -88,7 +90,7 @@ def run_exact_krylov_task(
 
     # Check vector norm
     norms = np.linalg.norm(krylov_vecs, axis=1)
-    np.testing.assert_allclose(norms, 1.0, rtol=10)
+    np.testing.assert_allclose(norms, 1.0, atol=1e-8)
 
     # Compute ground state energies
     n_vecs, dim = krylov_vecs.shape
@@ -100,7 +102,7 @@ def run_exact_krylov_task(
     for i in range(n_vecs):
         overlap_mat = krylov_matrix(eye, krylov_vecs[: i + 1])
         hamiltonian_mat = krylov_matrix(linop, krylov_vecs[: i + 1])
-        eigs, _, _ = safe_eigh(hamiltonian_mat, overlap_mat, lindep=1e-8)
+        eigs, _, _ = safe_eigh(hamiltonian_mat, overlap_mat, lindep=task.lindep)
         ground_energies[i] = eigs[0]
     logger.info(f"Ground energies: {ground_energies}")
 

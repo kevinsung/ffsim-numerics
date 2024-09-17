@@ -20,8 +20,9 @@ bond_distance = 1.0
 plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
-time_step_range = [1e-3, 1e-1, 1.0]
+time_step = 1e-1
 n_steps = 50
+lindep_range = [1e-3, 1e-5, 1e-8, 1e-12]
 
 molecule_filepath = (
     MOLECULES_CATALOG_DIR
@@ -32,20 +33,20 @@ molecule_filepath = (
 mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
 
 data = {}
-for time_step in time_step_range:
+for lindep in lindep_range:
     task = ExactKrylovTask(
         molecule_basename=molecule_basename,
         bond_distance=bond_distance,
         time_step=time_step,
         n_steps=n_steps,
         initial_state="hartree-fock",
-        lindep=1e-12,
+        lindep=lindep,
     )
     filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
     ground_energies = np.load(filepath)
     errors = ground_energies - mol_data.fci_energy
     assert all(errors > 0)
-    data[time_step] = errors
+    data[lindep] = errors
 
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
@@ -56,9 +57,9 @@ linestyles = ["--", ":"]
 
 fig, ax = plt.subplots(1, 1)
 
-for time_step, color in zip(time_step_range, colors):
-    errors = data[time_step]
-    ax.plot(range(2, n_steps + 3), errors, label=f"∆t={time_step}")
+for lindep, color in zip(lindep_range, colors):
+    errors = data[lindep]
+    ax.plot(range(2, n_steps + 3), errors, label=f"lindep={lindep}")
 
 ax.set_xticks(range(2, n_steps + 3, 6))
 ax.set_yscale("log")

@@ -28,6 +28,7 @@ class DoubleFactorizedTrotterKrylovTask:
     trotter_n_steps: int
     order: int
     initial_state: str  # options: hartree-fock
+    lindep: float
 
     def __post_init__(self):
         assert self.initial_state in ["hartree-fock"]
@@ -88,9 +89,7 @@ def run_double_factorized_trotter_krylov_task(
         order=task.order,
         initial_state=task.initial_state,
     )
-    filepath = (
-        DATA_ROOT / "df_trotter_krylov_vecs" / this_task.dirpath / "result.npy"
-    )
+    filepath = DATA_ROOT / "df_trotter_krylov_vecs" / this_task.dirpath / "result.npy"
     with open(filepath, "rb") as f:
         krylov_vecs = np.load(filepath)
 
@@ -108,7 +107,7 @@ def run_double_factorized_trotter_krylov_task(
     for i in range(n_vecs):
         overlap_mat = krylov_matrix(eye, krylov_vecs[: i + 1])
         hamiltonian_mat = krylov_matrix(linop, krylov_vecs[: i + 1])
-        eigs, _, _ = safe_eigh(hamiltonian_mat, overlap_mat, lindep=1e-8)
+        eigs, _, _ = safe_eigh(hamiltonian_mat, overlap_mat, lindep=task.lindep)
         ground_energies[i] = eigs[0]
     logger.info(f"Ground energies: {ground_energies}")
 
