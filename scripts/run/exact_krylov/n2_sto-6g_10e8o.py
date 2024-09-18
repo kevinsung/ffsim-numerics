@@ -31,7 +31,7 @@ nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step_range = [1e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
+time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
 n_steps = 50
 lindep_range = [1e-3, 1e-5, 1e-8, 1e-12, 1e-15]
 

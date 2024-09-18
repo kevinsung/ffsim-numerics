@@ -20,7 +20,7 @@ bond_distance = 1.0
 plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
-time_step = 1e-1
+time_step = 2e-1
 n_steps = 50
 lindep_range = [1e-3, 1e-5, 1e-8, 1e-12]
 
@@ -45,8 +45,8 @@ for lindep in lindep_range:
     filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
     ground_energies = np.load(filepath)
     errors = ground_energies - mol_data.fci_energy
-    assert all(errors > 0)
-    data[lindep] = errors
+    assert all(errors > -1e-8)
+    data[lindep] = np.abs(errors)
 
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]

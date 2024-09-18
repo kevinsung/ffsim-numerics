@@ -20,7 +20,7 @@ bond_distance = 1.0
 plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
-time_step_range = [1e-2, 1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
+time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
 n_steps = 50
 
 molecule_filepath = (
