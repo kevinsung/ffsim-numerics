@@ -30,7 +30,7 @@ ENTROPY = 155903744721100194602646941346278309426
 
 norb_x = 4
 norb_y = 2
-interactions = [2.0, 8.0]
+interactions = [8.0]
 filling_denominators = [8]
 
 time = 1.0

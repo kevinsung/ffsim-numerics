@@ -18,13 +18,13 @@ norb_y = 2
 plots_dir = os.path.join("plots", f"hubbard_{norb_x}x{norb_y}")
 os.makedirs(plots_dir, exist_ok=True)
 
-interactions = [2.0, 8.0]
+interactions = [8.0]
 filling_denominator = 8
 
 time = 1.0
 n_random = 10
 
-n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
+n_steps_choices = {0: [1, 26, 51, 76], 1: [1, 13, 25, 37], 2: [1, 5, 9, 13]}
 n_steps_and_order = list(
     itertools.chain(
         *(

@@ -24,19 +24,19 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 1
-OVERWRITE = True
+MAX_PROCESSES = 48
+OVERWRITE = False
 ENTROPY = 155903744721100194602646941346278309426
 
 norb_x = 4
 norb_y = 2
-interactions = [2.0, 8.0]
+interactions = [8.0]
 filling_denominators = [8]
 
 time = 1.0
 n_random = 10
 
-n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
+n_steps_choices = {0: [1, 26, 51, 76], 1: [1, 13, 25, 37], 2: [1, 5, 9, 13]}
 n_steps_and_order = list(
     itertools.chain(
         *(
