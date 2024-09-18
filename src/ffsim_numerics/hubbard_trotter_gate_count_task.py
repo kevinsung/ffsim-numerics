@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 class HubbardTrotterGateCountTask:
     norb_x: int
     norb_y: int
-    periodic: bool
+    periodic_x: bool
+    periodic_y: bool
     n_steps: int
     order: int
 
@@ -26,7 +27,8 @@ class HubbardTrotterGateCountTask:
         return (
             Path("hubbard")
             / f"{self.norb_x}x{self.norb_y}"
-            / f"periodic-{self.periodic}"
+            / f"periodic_x-{self.periodic_x}"
+            / f"periodic_y-{self.periodic_y}"
             / f"n_steps-{self.n_steps}"
             / f"order-{self.order}"
         )
@@ -52,7 +54,8 @@ def run_hubbard_trotter_gate_count_task(
         norb_y=task.norb_y,
         tunneling=1.0,
         interaction=1.0,
-        periodic=task.periodic,
+        periodic_x=task.periodic_x,
+        periodic_y=task.periodic_y,
     )
     norb = task.norb_x * task.norb_y
     hamiltonian = ffsim.DiagonalCoulombHamiltonian.from_fermion_operator(op)

@@ -19,15 +19,18 @@ class HubbardTrotterSimTask:
     interaction: float
     chemical_potential: float
     nearest_neighbor_interaction: float
-    periodic: bool
+    periodic_x: bool
+    periodic_y: bool
     filling_denominator: int
     time: float
     n_steps: int
     order: int
     initial_state: str  # options: one-body, random
-    seed: int | None = None
+    entropy: int | None = None
+    spawn_index: int = 0
 
     def __post_init__(self):
+        assert (self.norb_x * self.norb_y) % self.filling_denominator == 0
         assert self.initial_state in ("one-body", "random")
 
     @property
@@ -39,7 +42,8 @@ class HubbardTrotterSimTask:
             / f"interaction-{self.interaction}"
             / f"chemical_potential-{self.chemical_potential}"
             / f"nearest_neighbor_interaction-{self.nearest_neighbor_interaction}"
-            / f"periodic-{self.periodic}"
+            / f"periodic_x-{self.periodic_x}"
+            / f"periodic_y-{self.periodic_y}"
             / f"filling_denominator-{self.filling_denominator}"
             / f"time-{self.time:.1f}"
             / f"n_steps-{self.n_steps}"
@@ -47,7 +51,8 @@ class HubbardTrotterSimTask:
             / f"initial_state-{self.initial_state}"
         )
         if self.initial_state == "random":
-            path /= f"seed-{self.seed}"
+            path /= f"root_seed-{self.entropy}"
+            path /= f"spawn_index-{self.spawn_index}"
         return path
 
 
@@ -73,7 +78,8 @@ def run_hubbard_trotter_sim_task(
         interaction=task.interaction,
         chemical_potential=task.chemical_potential,
         nearest_neighbor_interaction=task.nearest_neighbor_interaction,
-        periodic=task.periodic,
+        periodic_x=task.periodic_x,
+        periodic_y=task.periodic_y,
     )
     norb = task.norb_x * task.norb_y
     nocc = norb // task.filling_denominator
@@ -92,8 +98,10 @@ def run_hubbard_trotter_sim_task(
                 norb, (range(nocc), range(nocc)), orbital_rotation=orbital_rotation
             )
         case "random":
+            parent_rng = np.random.default_rng(task.entropy)
+            child_rng = parent_rng.spawn(task.spawn_index + 1)[-1]
             reference_state = ffsim.random.random_state_vector(
-                ffsim.dim(norb, nelec), seed=task.seed
+                ffsim.dim(norb, nelec), seed=child_rng
             )
 
     # Apply Trotter evolution

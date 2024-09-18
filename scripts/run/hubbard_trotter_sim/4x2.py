@@ -6,11 +6,12 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
+from tqdm import tqdm
+
 from ffsim_numerics.hubbard_trotter_sim_task import (
     HubbardTrotterSimTask,
     run_hubbard_trotter_sim_task,
 )
-from tqdm import tqdm
 
 filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
 os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -23,17 +24,17 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 48
-
-overwrite = False
-
-time = 1.0
+MAX_PROCESSES = 1
+OVERWRITE = True
+ENTROPY = 155903744721100194602646941346278309426
 
 norb_x = 4
 norb_y = 2
-interactions = [1.0, 2.0, 4.0, 8.0]
-periodic_choices = [False, True]
-filling_denominators = [8, 4, 2]
+interactions = [8.0]
+filling_denominators = [8]
+
+time = 1.0
+n_random = 10
 
 n_steps_choices = {0: range(1, 40, 6), 1: range(1, 20, 3), 2: range(1, 4)}
 n_steps_and_order = list(
@@ -44,7 +45,6 @@ n_steps_and_order = list(
         )
     )
 )
-initial_state_and_seed = [("one-body", None), ("random", 46417)]
 
 
 tasks = [
@@ -55,20 +55,21 @@ tasks = [
         interaction=interaction,
         chemical_potential=0.0,
         nearest_neighbor_interaction=0.0,
-        periodic=periodic,
+        periodic_x=True,
+        periodic_y=False,
         filling_denominator=filling_denominator,
         time=time,
         n_steps=n_steps,
         order=order,
-        initial_state=initial_state,
-        seed=seed,
+        initial_state="random",
+        entropy=ENTROPY,
+        spawn_index=spawn_index,
     )
-    for interaction, periodic, filling_denominator in itertools.product(
-        interactions, periodic_choices, filling_denominators
+    for interaction, filling_denominator in itertools.product(
+        interactions, filling_denominators
     )
-    for (n_steps, order), (initial_state, seed) in itertools.product(
-        n_steps_and_order, initial_state_and_seed
-    )
+    for spawn_index in range(n_random)
+    for n_steps, order in n_steps_and_order
 ]
 
 
@@ -77,7 +78,7 @@ if MAX_PROCESSES == 1:
         run_hubbard_trotter_sim_task(
             task,
             data_dir=DATA_DIR,
-            overwrite=overwrite,
+            overwrite=OVERWRITE,
         )
 else:
     with tqdm(total=len(tasks)) as progress:
@@ -87,6 +88,6 @@ else:
                     run_hubbard_trotter_sim_task,
                     task,
                     data_dir=DATA_DIR,
-                    overwrite=overwrite,
+                    overwrite=OVERWRITE,
                 )
                 future.add_done_callback(lambda _: progress.update())
