@@ -8,9 +8,9 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from ffsim_numerics.hubbard_trotter_sim_task import (
-    HubbardTrotterSimTask,
-    run_hubbard_trotter_sim_task,
+from ffsim_numerics.hubbard_time_evo_task import (
+    HubbardTimeEvolutionTask,
+    run_hubbard_time_evolution_task,
 )
 
 filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
@@ -24,31 +24,21 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 60
+MAX_PROCESSES = 96
 OVERWRITE = False
 ENTROPY = 155903744721100194602646941346278309426
 
 norb_x = 4
-norb_y = 2
+norb_y = 8
 interactions = [8.0]
 filling_denominators = [8]
 
 time = 1.0
 n_random = 10
 
-n_steps_choices = {0: [1, 71, 141, 221], 1: [1, 41, 81, 121], 2: [1, 11, 21, 31]}
-n_steps_and_order = list(
-    itertools.chain(
-        *(
-            [(n_steps, order) for n_steps in n_steps_range]
-            for order, n_steps_range in n_steps_choices.items()
-        )
-    )
-)
-
-
 tasks = [
-    HubbardTrotterSimTask(
+    HubbardTimeEvolutionTask(
+        time=time,
         norb_x=norb_x,
         norb_y=norb_y,
         tunneling=1.0,
@@ -58,9 +48,6 @@ tasks = [
         periodic_x=True,
         periodic_y=False,
         filling_denominator=filling_denominator,
-        time=time,
-        n_steps=n_steps,
-        order=order,
         initial_state="random",
         entropy=ENTROPY,
         spawn_index=spawn_index,
@@ -69,13 +56,12 @@ tasks = [
         interactions, filling_denominators
     )
     for spawn_index in range(n_random)
-    for n_steps, order in n_steps_and_order
 ]
 
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_hubbard_trotter_sim_task(
+        run_hubbard_time_evolution_task(
             task,
             data_dir=DATA_DIR,
             overwrite=OVERWRITE,
@@ -85,7 +71,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_hubbard_trotter_sim_task,
+                    run_hubbard_time_evolution_task,
                     task,
                     data_dir=DATA_DIR,
                     overwrite=OVERWRITE,

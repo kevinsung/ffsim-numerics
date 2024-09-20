@@ -13,7 +13,7 @@ ENTROPY = 155903744721100194602646941346278309426
 
 
 norb_x = 4
-norb_y = 2
+norb_y = 6
 
 plots_dir = os.path.join("plots", f"hubbard_{norb_x}x{norb_y}")
 os.makedirs(plots_dir, exist_ok=True)
@@ -24,7 +24,12 @@ filling_denominator = 8
 time = 1.0
 n_random = 10
 
-n_steps_choices = {0: [1, 71, 141, 221], 1: [1, 41, 81, 121], 2: [1, 11, 21, 31]}
+n_steps_choices = {
+    0: [1, 21, 41, 61],
+    1: [1, 11, 21, 31],
+    2: [1, 3, 5, 7],
+    3: [1, 2, 3],
+}
 n_steps_and_order = list(
     itertools.chain(
         *(
