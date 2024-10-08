@@ -34,7 +34,7 @@ interactions = [8.0]
 filling_denominators = [8]
 
 time = 1.0
-n_random = 10
+n_random = 5
 
 n_steps_choices = {
     0: [1, 21, 41, 61],
