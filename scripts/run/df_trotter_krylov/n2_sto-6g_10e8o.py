@@ -5,7 +5,6 @@ import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-import numpy as np
 from tqdm import tqdm
 
 from ffsim_numerics.df_trotter_krylov_task import (
