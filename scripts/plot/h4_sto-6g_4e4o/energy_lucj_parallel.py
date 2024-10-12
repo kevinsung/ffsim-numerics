@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from ffsim_numerics.lucj_linear_method_task import LUCJLinearMethodTask
-from ffsim_numerics.params import LinearMethodParams, LUCJParams
+from ffsim_numerics.params import LinearMethodParams, LUCJParams, UCCSDParams
+from ffsim_numerics.uccsd_linear_method_task import UCCSDLinearMethodTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
@@ -66,6 +67,25 @@ tasks_lucj = [
     for connectivity, n_reps in itertools.product(connectivities, n_reps_range)
     for d in bond_distance_range
 ]
+tasks_uccsd = [
+    UCCSDLinearMethodTask(
+        molecule_basename=molecule_basename,
+        bond_distance=d,
+        uccsd_params=UCCSDParams(with_final_orbital_rotation=True),
+        linear_method_params=LinearMethodParams(
+            maxiter=1000,
+            lindep=1e-8,
+            epsilon=1e-8,
+            ftol=1e-8,
+            gtol=1e-5,
+            regularization=1e-4,
+            variation=0.5,
+            optimize_regularization=True,
+            optimize_variation=True,
+        ),
+    )
+    for d in bond_distance_range
+]
 
 
 mol_datas_reference: dict[float, ffsim.MolecularData] = {}
@@ -113,6 +133,11 @@ for task in tasks_lucj:
     filepath = DATA_ROOT / "lucj_linear_method_parallel" / task.dirpath / "data.pickle"
     with open(filepath, "rb") as f:
         data_lucj[task] = pickle.load(f)
+data_uccsd = {}
+for task in tasks_uccsd:
+    filepath = DATA_ROOT / "uccsd_linear_method_parallel" / task.dirpath / "data.pickle"
+    with open(filepath, "rb") as f:
+        data_uccsd[task] = pickle.load(f)
 print("Done loading data.")
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
@@ -147,16 +172,47 @@ ax0.plot(
     color="black",
 )
 
-connectivity = "all-to-all"
 
+uccsd_energies = [data_uccsd[task]["energy"] for task in tasks_uccsd]
+uccsd_errors = [data_uccsd[task]["error"] for task in tasks_uccsd]
+spin_squares = [data_uccsd[task]["spin_squared"] for task in tasks_uccsd]
+nits = [data_uccsd[task]["nit"] for task in tasks_uccsd]
+ax0.plot(
+    bond_distance_range,
+    uccsd_energies,
+    f"{markers[0]}{linestyles[0]}",
+    label="UCCSD",
+    color=colors[0],
+)
+ax1.plot(
+    bond_distance_range,
+    uccsd_errors,
+    f"{markers[0]}{linestyles[0]}",
+    label="UCCSD",
+    color=colors[0],
+)
+ax2.plot(
+    bond_distance_range,
+    spin_squares,
+    f"{markers[0]}{linestyles[0]}",
+    label="UCCSD",
+    color=colors[0],
+)
+ax3.plot(
+    bond_distance_range,
+    nits,
+    f"{markers[0]}{linestyles[0]}",
+    label="UCCSD",
+    color=colors[0],
+)
 
-for n_reps, marker, color in zip(n_reps_range, markers[2::-1], colors[2::-1]):
+for n_reps, marker, color in zip(n_reps_range, markers[1:], colors[1:]):
     tasks_lucj = [
         LUCJLinearMethodTask(
             molecule_basename=molecule_basename,
             bond_distance=d,
             lucj_params=LUCJParams(
-                connectivity=connectivity,
+                connectivity="all-to-all",
                 n_reps=n_reps,
                 with_final_orbital_rotation=True,
             ),
@@ -174,54 +230,38 @@ for n_reps, marker, color in zip(n_reps_range, markers[2::-1], colors[2::-1]):
         )
         for d in bond_distance_range
     ]
-    for data, tasks, label, alpha in zip(
-        [
-            data_lucj,
-        ],
-        [
-            tasks_lucj,
-        ],
-        [
-            f"LUCJ, L={n_reps}",
-        ],
-        alphas,
-    ):
-        energies = [data[task]["energy"] for task in tasks]
-        errors = [data[task]["error"] for task in tasks]
-        spin_squares = [data[task]["spin_squared"] for task in tasks]
-        nits = [data[task]["nit"] for task in tasks]
-        ax0.plot(
-            bond_distance_range,
-            energies,
-            f"{marker}{linestyles[0]}",
-            label=f"LUCJ, {label}",
-            color=color,
-            alpha=alpha,
-        )
-        ax1.plot(
-            bond_distance_range,
-            errors,
-            f"{marker}{linestyles[0]}",
-            label=f"LUCJ, {label}",
-            color=color,
-            alpha=alpha,
-        )
-        ax2.plot(
-            bond_distance_range,
-            spin_squares,
-            f"{marker}{linestyles[0]}",
-            label=f"LUCJ, {label}",
-            color=color,
-            alpha=alpha,
-        )
-        ax3.plot(
-            bond_distance_range,
-            nits,
-            f"{marker}{linestyles[0]}",
-            label=f"LUCJ, {label}",
-            color=color,
-            alpha=alpha,
-        )
+    energies = [data_lucj[task]["energy"] for task in tasks_lucj]
+    errors = [data_lucj[task]["error"] for task in tasks_lucj]
+    spin_squares = [data_lucj[task]["spin_squared"] for task in tasks_lucj]
+    nits = [data_lucj[task]["nit"] for task in tasks_lucj]
+    ax0.plot(
+        bond_distance_range,
+        energies,
+        f"{marker}{linestyles[0]}",
+        label=f"LUCJ, L={n_reps}",
+        color=color,
+    )
+    ax1.plot(
+        bond_distance_range,
+        errors,
+        f"{marker}{linestyles[0]}",
+        label=f"LUCJ, L={n_reps}",
+        color=color,
+    )
+    ax2.plot(
+        bond_distance_range,
+        spin_squares,
+        f"{marker}{linestyles[0]}",
+        label=f"LUCJ, L={n_reps}",
+        color=color,
+    )
+    ax3.plot(
+        bond_distance_range,
+        nits,
+        f"{marker}{linestyles[0]}",
+        label=f"LUCJ, L={n_reps}",
+        color=color,
+    )
 
 ax0.legend()
 ax0.set_ylabel("Energy (Hartree)")

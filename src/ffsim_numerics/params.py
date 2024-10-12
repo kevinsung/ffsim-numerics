@@ -17,6 +17,11 @@ class LUCJParams(Params):
 
 
 @dataclass(frozen=True, kw_only=True)
+class UCCSDParams(Params):
+    with_final_orbital_rotation: bool
+
+
+@dataclass(frozen=True, kw_only=True)
 class LUCJAnglesParams(Params):
     connectivity: str  # options: all-to-all, square, hex, heavy-hex
     n_reps: int | None
