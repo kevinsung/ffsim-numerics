@@ -17,7 +17,7 @@ MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 
 molecule_name = "n2"
 basis = "sto-6g"
-nelectron, norb = 6, 6
+nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 
 plots_dir = os.path.join("plots", molecule_basename)
@@ -38,8 +38,6 @@ n_reps_range = [
     6,
     # 8,
 ]
-ftol = 1e-12
-gtol = 1e-5
 
 tasks_lucj = [
     LUCJLinearMethodTask(
@@ -54,8 +52,8 @@ tasks_lucj = [
             maxiter=1000,
             lindep=1e-8,
             epsilon=1e-8,
-            ftol=ftol,
-            gtol=gtol,
+            ftol=1e-8,
+            gtol=1e-5,
             regularization=1e-4,
             variation=0.5,
             optimize_regularization=True,
@@ -74,8 +72,8 @@ tasks_uccsd = [
             maxiter=1000,
             lindep=1e-8,
             epsilon=1e-8,
-            ftol=ftol,
-            gtol=gtol,
+            ftol=1e-8,
+            gtol=1e-5,
             regularization=1e-4,
             variation=0.5,
             optimize_regularization=True,
@@ -224,8 +222,8 @@ for n_reps, marker, color in zip(n_reps_range, markers[1:], colors[1:]):
                 maxiter=1000,
                 lindep=1e-8,
                 epsilon=1e-8,
-                ftol=ftol,
-                gtol=gtol,
+                ftol=1e-8,
+                gtol=1e-5,
                 regularization=1e-4,
                 variation=0.5,
                 optimize_regularization=True,
@@ -287,5 +285,4 @@ filepath = os.path.join(
     plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
 )
 plt.savefig(filepath)
-print(f"Saved figure to {filepath}.")
 plt.close()

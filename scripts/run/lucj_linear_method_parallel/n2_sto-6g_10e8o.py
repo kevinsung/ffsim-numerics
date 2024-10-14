@@ -28,7 +28,7 @@ DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 MAX_PROCESSES = 96
-OVERWRITE = True
+OVERWRITE = False
 
 molecule_name = "n2"
 basis = "sto-6g"
@@ -48,6 +48,8 @@ n_reps_range = [
     4,
     6,
 ]
+ftol = 1e-12
+gtol = 1e-5
 
 tasks = [
     LUCJLinearMethodTask(
@@ -62,8 +64,8 @@ tasks = [
             maxiter=1000,
             lindep=1e-8,
             epsilon=1e-8,
-            ftol=1e-8,
-            gtol=1e-5,
+            ftol=ftol,
+            gtol=gtol,
             regularization=1e-4,
             variation=0.5,
             optimize_regularization=True,

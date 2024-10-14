@@ -1,4 +1,3 @@
-import itertools
 import os
 import pickle
 from pathlib import Path
@@ -17,7 +16,7 @@ MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 
 molecule_name = "n2"
 basis = "sto-6g"
-nelectron, norb = 6, 6
+nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 
 plots_dir = os.path.join("plots", molecule_basename)
@@ -128,13 +127,7 @@ fci_energies_experiment = np.array(
 print("Loading data...")
 data_lucj = {}
 for task in tasks_lucj:
-    filepath = (
-        DATA_ROOT
-        / "lucj_linear_method_bootstrap"
-        / "post-bootstrap"
-        / task.dirpath
-        / "data.pickle"
-    )
+    filepath = DATA_ROOT / "lucj_linear_method_parallel" / task.dirpath / "data.pickle"
     with open(filepath, "rb") as f:
         data_lucj[task] = pickle.load(f)
 data_uccsd = {}

@@ -1,4 +1,3 @@
-import itertools
 import os
 import pickle
 from pathlib import Path
@@ -7,7 +6,7 @@ import ffsim
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ffsim_numerics.params import LinearMethodParams, LUCJParams, UCCSDParams
+from ffsim_numerics.params import LinearMethodParams, UCCSDParams
 from ffsim_numerics.uccsd_initial_params_task import UCCSDInitialParamsTask
 from ffsim_numerics.uccsd_linear_method_task import UCCSDLinearMethodTask
 
@@ -44,7 +43,7 @@ tasks_uccsd_lm = [
             maxiter=1000,
             lindep=1e-8,
             epsilon=1e-8,
-            ftol=1e-8,
+            ftol=1e-12,
             gtol=1e-5,
             regularization=1e-4,
             variation=0.5,
@@ -106,17 +105,6 @@ for task in tasks_uccsd_lm:
     filepath = DATA_ROOT / "uccsd_linear_method_parallel" / task.dirpath / "data.pickle"
     with open(filepath, "rb") as f:
         data_uccsd_lm[task] = pickle.load(f)
-data_uccsd_lm_bootstrap = {}
-for task in tasks_uccsd_lm:
-    filepath = (
-        DATA_ROOT
-        / "uccsd_linear_method_bootstrap"
-        / "post-bootstrap"
-        / task.dirpath
-        / "data.pickle"
-    )
-    with open(filepath, "rb") as f:
-        data_uccsd_lm_bootstrap[task] = pickle.load(f)
 print("Done loading data.")
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
@@ -152,9 +140,9 @@ ax0.plot(
 )
 
 for tasks, data, label, marker, color in zip(
-    [tasks_uccsd_init, tasks_uccsd_lm, tasks_uccsd_lm],
-    [data_uccsd_init, data_uccsd_lm, data_uccsd_lm_bootstrap],
-    ["UCCSD init", "UCCSD opt parallel", "UCCSD opt bootstrap"],
+    [tasks_uccsd_init, tasks_uccsd_lm],
+    [data_uccsd_init, data_uccsd_lm],
+    ["UCCSD init", "UCCSD opt"],
     markers,
     colors,
 ):

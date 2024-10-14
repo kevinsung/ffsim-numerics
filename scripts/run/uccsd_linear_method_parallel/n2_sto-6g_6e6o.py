@@ -39,6 +39,9 @@ stop = 2.7
 step = 0.1
 bond_distance_range = np.linspace(start, stop, num=round((stop - start) / step) + 1)
 
+ftol = 1e-12
+gtol = 1e-5
+
 tasks = [
     UCCSDLinearMethodTask(
         molecule_basename=molecule_basename,
@@ -48,8 +51,8 @@ tasks = [
             maxiter=1000,
             lindep=1e-8,
             epsilon=1e-8,
-            ftol=1e-8,
-            gtol=1e-5,
+            ftol=ftol,
+            gtol=gtol,
             regularization=1e-4,
             variation=0.5,
             optimize_regularization=True,

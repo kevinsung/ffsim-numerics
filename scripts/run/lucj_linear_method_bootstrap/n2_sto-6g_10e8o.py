@@ -35,7 +35,7 @@ OVERWRITE = False
 
 molecule_name = "n2"
 basis = "sto-6g"
-nelectron, norb = 6, 6
+nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 
 start = 0.9
