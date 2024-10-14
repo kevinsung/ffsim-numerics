@@ -44,8 +44,8 @@ connectivities = [
     "square",
 ]
 n_reps_range = [
-    # 2,
-    # 4,
+    2,
+    4,
     6,
 ]
 
