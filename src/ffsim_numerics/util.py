@@ -36,6 +36,6 @@ def interaction_pairs_spinless(
 
 def copy_data(task, src_data_dir: str, dst_data_dir: str, dirs_exist_ok: bool = False):
     """Copy task data to another directory."""
-    src_dir = os.path.join(src_data_dir, task.dirname)
-    dst_dir = os.path.join(dst_data_dir, task.dirname)
+    src_dir = os.path.join(src_data_dir, task.dirpath)
+    dst_dir = os.path.join(dst_data_dir, task.dirpath)
     shutil.copytree(src_dir, dst_dir, dirs_exist_ok=dirs_exist_ok)

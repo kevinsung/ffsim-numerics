@@ -1,3 +1,4 @@
+import itertools
 import os
 import pickle
 from pathlib import Path
@@ -6,8 +7,8 @@ import ffsim
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ffsim_numerics.lucj_linear_method_task import LUCJLinearMethodTask
 from ffsim_numerics.params import LinearMethodParams, LUCJParams, UCCSDParams
+from ffsim_numerics.uccsd_initial_params_task import UCCSDInitialParamsTask
 from ffsim_numerics.uccsd_linear_method_task import UCCSDLinearMethodTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
@@ -30,39 +31,11 @@ reference_bond_distance_range = np.linspace(
     start, stop, num=round((stop - start) / 0.05) + 1
 )
 
-connectivity = "square"
-n_reps_range = [
-    2,
-    4,
-    6,
-    # 8,
-]
-
-tasks_lucj = [
-    LUCJLinearMethodTask(
-        molecule_basename=molecule_basename,
-        bond_distance=d,
-        lucj_params=LUCJParams(
-            connectivity=connectivity,
-            n_reps=n_reps,
-            with_final_orbital_rotation=True,
-        ),
-        linear_method_params=LinearMethodParams(
-            maxiter=1000,
-            lindep=1e-8,
-            epsilon=1e-8,
-            ftol=1e-8,
-            gtol=1e-5,
-            regularization=1e-4,
-            variation=0.5,
-            optimize_regularization=True,
-            optimize_variation=True,
-        ),
-    )
-    for n_reps in n_reps_range
+tasks_uccsd_init = [
+    UCCSDInitialParamsTask(molecule_basename=molecule_basename, bond_distance=d)
     for d in bond_distance_range
 ]
-tasks_uccsd = [
+tasks_uccsd_lm = [
     UCCSDLinearMethodTask(
         molecule_basename=molecule_basename,
         bond_distance=d,
@@ -123,16 +96,27 @@ fci_energies_experiment = np.array(
 )
 
 print("Loading data...")
-data_lucj = {}
-for task in tasks_lucj:
-    filepath = DATA_ROOT / "lucj_linear_method_parallel" / task.dirpath / "data.pickle"
+data_uccsd_init = {}
+for task in tasks_uccsd_init:
+    filepath = DATA_ROOT / "uccsd_initial_params" / task.dirpath / "data.pickle"
     with open(filepath, "rb") as f:
-        data_lucj[task] = pickle.load(f)
-data_uccsd = {}
-for task in tasks_uccsd:
+        data_uccsd_init[task] = pickle.load(f)
+data_uccsd_lm = {}
+for task in tasks_uccsd_lm:
     filepath = DATA_ROOT / "uccsd_linear_method_parallel" / task.dirpath / "data.pickle"
     with open(filepath, "rb") as f:
-        data_uccsd[task] = pickle.load(f)
+        data_uccsd_lm[task] = pickle.load(f)
+data_uccsd_lm_bootstrap = {}
+for task in tasks_uccsd_lm:
+    filepath = (
+        DATA_ROOT
+        / "uccsd_linear_method_bootstrap"
+        / "post-bootstrap"
+        / task.dirpath
+        / "data.pickle"
+    )
+    with open(filepath, "rb") as f:
+        data_uccsd_lm_bootstrap[task] = pickle.load(f)
 print("Done loading data.")
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
@@ -167,94 +151,35 @@ ax0.plot(
     color="black",
 )
 
-
-uccsd_energies = [data_uccsd[task]["energy"] for task in tasks_uccsd]
-uccsd_errors = [data_uccsd[task]["error"] for task in tasks_uccsd]
-spin_squares = [data_uccsd[task]["spin_squared"] for task in tasks_uccsd]
-nits = [data_uccsd[task]["nit"] for task in tasks_uccsd]
-ax0.plot(
-    bond_distance_range,
-    uccsd_energies,
-    f"{markers[0]}{linestyles[0]}",
-    label="UCCSD",
-    color=colors[0],
-)
-ax1.plot(
-    bond_distance_range,
-    uccsd_errors,
-    f"{markers[0]}{linestyles[0]}",
-    label="UCCSD",
-    color=colors[0],
-)
-ax2.plot(
-    bond_distance_range,
-    spin_squares,
-    f"{markers[0]}{linestyles[0]}",
-    label="UCCSD",
-    color=colors[0],
-)
-ax3.plot(
-    bond_distance_range,
-    nits,
-    f"{markers[0]}{linestyles[0]}",
-    label="UCCSD",
-    color=colors[0],
-)
-
-for n_reps, marker, color in zip(n_reps_range, markers[1:], colors[1:]):
-    tasks_lucj = [
-        LUCJLinearMethodTask(
-            molecule_basename=molecule_basename,
-            bond_distance=d,
-            lucj_params=LUCJParams(
-                connectivity=connectivity,
-                n_reps=n_reps,
-                with_final_orbital_rotation=True,
-            ),
-            linear_method_params=LinearMethodParams(
-                maxiter=1000,
-                lindep=1e-8,
-                epsilon=1e-8,
-                ftol=1e-8,
-                gtol=1e-5,
-                regularization=1e-4,
-                variation=0.5,
-                optimize_regularization=True,
-                optimize_variation=True,
-            ),
-        )
-        for d in bond_distance_range
-    ]
-    energies = [data_lucj[task]["energy"] for task in tasks_lucj]
-    errors = [data_lucj[task]["error"] for task in tasks_lucj]
-    spin_squares = [data_lucj[task]["spin_squared"] for task in tasks_lucj]
-    nits = [data_lucj[task]["nit"] for task in tasks_lucj]
+for tasks, data, label, marker, color in zip(
+    [tasks_uccsd_init, tasks_uccsd_lm, tasks_uccsd_lm],
+    [data_uccsd_init, data_uccsd_lm, data_uccsd_lm_bootstrap],
+    ["UCCSD init", "UCCSD opt parallel", "UCCSD opt bootstrap"],
+    markers,
+    colors,
+):
+    energies = [data[task]["energy"] for task in tasks]
+    errors = [data[task]["error"] for task in tasks]
+    spin_squares = [data[task]["spin_squared"] for task in tasks]
     ax0.plot(
         bond_distance_range,
         energies,
         f"{marker}{linestyles[0]}",
-        label=f"LUCJ {connectivity}, L={n_reps}",
+        label=label,
         color=color,
     )
     ax1.plot(
         bond_distance_range,
         errors,
         f"{marker}{linestyles[0]}",
-        label=f"LUCJ {connectivity}, L={n_reps}",
+        label=label,
         color=color,
     )
     ax2.plot(
         bond_distance_range,
         spin_squares,
         f"{marker}{linestyles[0]}",
-        label=f"LUCJ {connectivity}, L={n_reps}",
-        color=color,
-    )
-    ax3.plot(
-        bond_distance_range,
-        nits,
-        f"{marker}{linestyles[0]}",
-        label=f"LUCJ {connectivity}, L={n_reps}",
+        label=label,
         color=color,
     )
 
@@ -278,5 +203,4 @@ filepath = os.path.join(
     plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
 )
 plt.savefig(filepath)
-print(f"Saved figure to {filepath}.")
 plt.close()

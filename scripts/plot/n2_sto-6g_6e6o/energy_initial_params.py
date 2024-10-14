@@ -16,14 +16,14 @@ MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 
 molecule_name = "n2"
 basis = "sto-6g"
-nelectron, norb = 10, 8
+nelectron, norb = 6, 6
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 
 plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
-start = 0.7
-stop = 3.0
+start = 0.9
+stop = 2.7
 step = 0.1
 bond_distance_range = np.linspace(start, stop, num=round((stop - start) / step) + 1)
 reference_bond_distance_range = np.linspace(

@@ -9,11 +9,11 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from ffsim_numerics.lucj_initial_params_task import (
-    LUCJInitialParamsTask,
-    run_lucj_initial_params_task,
+from ffsim_numerics.lucj_linear_method_task import (
+    LUCJLinearMethodTask,
+    run_lucj_linear_method_task,
 )
-from ffsim_numerics.params import LUCJParams
+from ffsim_numerics.params import LinearMethodParams, LUCJParams
 
 filename = f"logs/{os.path.splitext(os.path.relpath(__file__))[0]}.log"
 os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -27,35 +27,47 @@ logging.basicConfig(
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
 MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
-MAX_PROCESSES = 1
-OVERWRITE = False
+MAX_PROCESSES = 96
+OVERWRITE = True
 
 molecule_name = "n2"
 basis = "sto-6g"
 nelectron, norb = 10, 8
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 
-bond_distance_range = np.arange(0.70, 3.01, 0.10)
+start = 0.9
+stop = 2.7
+step = 0.1
+bond_distance_range = np.linspace(start, stop, num=round((stop - start) / step) + 1)
 
 connectivities = [
     "square",
-    "all-to-all",
 ]
 n_reps_range = [
-    2,
-    4,
+    # 2,
+    # 4,
     6,
-    None,
 ]
 
 tasks = [
-    LUCJInitialParamsTask(
+    LUCJLinearMethodTask(
         molecule_basename=molecule_basename,
         bond_distance=d,
         lucj_params=LUCJParams(
             connectivity=connectivity,
             n_reps=n_reps,
             with_final_orbital_rotation=True,
+        ),
+        linear_method_params=LinearMethodParams(
+            maxiter=1000,
+            lindep=1e-8,
+            epsilon=1e-8,
+            ftol=1e-8,
+            gtol=1e-5,
+            regularization=1e-4,
+            variation=0.5,
+            optimize_regularization=True,
+            optimize_variation=True,
         ),
     )
     for connectivity, n_reps in itertools.product(connectivities, n_reps_range)
@@ -64,7 +76,7 @@ tasks = [
 
 if MAX_PROCESSES == 1:
     for task in tqdm(tasks):
-        run_lucj_initial_params_task(
+        run_lucj_linear_method_task(
             task,
             data_dir=DATA_DIR,
             molecules_catalog_dir=MOLECULES_CATALOG_DIR,
@@ -75,7 +87,7 @@ else:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
-                    run_lucj_initial_params_task,
+                    run_lucj_linear_method_task,
                     task,
                     data_dir=DATA_DIR,
                     molecules_catalog_dir=MOLECULES_CATALOG_DIR,

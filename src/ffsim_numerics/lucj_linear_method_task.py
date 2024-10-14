@@ -33,8 +33,8 @@ class LUCJLinearMethodTask:
                 if self.bond_distance is None
                 else f"bond_distance-{self.bond_distance:.2f}"
             )
-            / self.lucj_params.dirname
-            / self.linear_method_params.dirname
+            / self.lucj_params.dirpath
+            / self.linear_method_params.dirpath
         )
 
 
@@ -47,7 +47,7 @@ def run_lucj_linear_method_task(
     bootstrap_data_dir: Path | None = None,
     overwrite: bool = True,
 ) -> LUCJLinearMethodTask:
-    logging.info(f"{task} Starting...\n")
+    logger.info(f"{task} Starting...\n")
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
     result_filename = data_dir / task.dirpath / "result.pickle"
@@ -59,7 +59,7 @@ def run_lucj_linear_method_task(
         and os.path.exists(info_filename)
         and os.path.exists(data_filename)
     ):
-        logging.info(f"Data for {task} already exists. Skipping...\n")
+        logger.info(f"Data for {task} already exists. Skipping...\n")
         return task
 
     # Get molecular data and molecular Hamiltonian
@@ -128,15 +128,19 @@ def run_lucj_linear_method_task(
             and not bootstrap_task.lucj_params.with_final_orbital_rotation
         ):
             params = np.concatenate([params, np.zeros(norb**2)])
-            params[-(norb**2) :] = orbital_rotation_to_parameters(np.eye(norb))
+            params[-(norb**2) :] = orbital_rotation_to_parameters(
+                np.eye(norb, dtype=complex)
+            )
 
     # Optimize ansatz
-    logging.info(f"{task} Optimizing ansatz...\n")
+    logger.info(f"{task} Optimizing ansatz...\n")
     info = defaultdict(list)
     info["nit"] = 0
+    info["regularization"] = [task.linear_method_params.regularization]
+    info["variation"] = [task.linear_method_params.variation]
 
     def callback(intermediate_result: scipy.optimize.OptimizeResult):
-        logging.info(f"Task {task} is on iteration {info['nit']}.\n")
+        logger.info(f"Task {task} is on iteration {info['nit']}.\n")
         info["x"].append(intermediate_result.x)
         info["fun"].append(intermediate_result.fun)
         if hasattr(intermediate_result, "jac"):
@@ -145,12 +149,12 @@ def run_lucj_linear_method_task(
             info["regularization"].append(intermediate_result.regularization)
         if hasattr(intermediate_result, "variation"):
             info["variation"].append(intermediate_result.variation)
-        nit = info["nit"]
-        if nit < 10 or nit % 100 == 0:
-            if hasattr(intermediate_result, "energy_mat"):
-                info["energy_mat"].append((nit, intermediate_result.energy_mat))
-            if hasattr(intermediate_result, "overlap_mat"):
-                info["overlap_mat"].append((nit, intermediate_result.overlap_mat))
+        # nit = info["nit"]
+        # if nit < 10 or nit % 100 == 0:
+        #     if hasattr(intermediate_result, "energy_mat"):
+        #         info["energy_mat"].append((nit, intermediate_result.energy_mat))
+        #     if hasattr(intermediate_result, "overlap_mat"):
+        #         info["overlap_mat"].append((nit, intermediate_result.overlap_mat))
         info["nit"] += 1
 
     t0 = timeit.default_timer()
@@ -159,20 +163,20 @@ def run_lucj_linear_method_task(
         hamiltonian,
         x0=params,
         maxiter=task.linear_method_params.maxiter,
-        regularization=task.linear_method_params.regularization,
-        variation=task.linear_method_params.variation,
         lindep=task.linear_method_params.lindep,
         epsilon=task.linear_method_params.epsilon,
         ftol=task.linear_method_params.ftol,
         gtol=task.linear_method_params.gtol,
+        regularization=task.linear_method_params.regularization,
+        variation=task.linear_method_params.variation,
         optimize_regularization=task.linear_method_params.optimize_regularization,
         optimize_variation=task.linear_method_params.optimize_variation,
         callback=callback,
     )
     t1 = timeit.default_timer()
-    logging.info(f"{task} Done optimizing ansatz in {t1 - t0} seconds.\n")
+    logger.info(f"{task} Done optimizing ansatz in {t1 - t0} seconds.\n")
 
-    logging.info(f"{task} Computing energy and other properties...\n")
+    logger.info(f"{task} Computing energy and other properties...\n")
     # Compute energy and other properties of final state vector
     if task.lucj_params.n_reps is None:
         op = ffsim.UCJOpSpinBalanced.from_t_amplitudes(
@@ -213,7 +217,7 @@ def run_lucj_linear_method_task(
     }
     data["nlinop"] = result.nlinop
 
-    logging.info(f"{task} Saving data...\n")
+    logger.info(f"{task} Saving data...\n")
     with open(result_filename, "wb") as f:
         pickle.dump(result, f)
     with open(info_filename, "wb") as f:

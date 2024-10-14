@@ -32,8 +32,8 @@ class UCCSDLinearMethodTask:
                 if self.bond_distance is None
                 else f"bond_distance-{self.bond_distance:.2f}"
             )
-            / self.uccsd_params.dirname
-            / self.linear_method_params.dirname
+            / self.uccsd_params.dirpath
+            / self.linear_method_params.dirpath
         )
 
 
@@ -46,7 +46,7 @@ def run_uccsd_linear_method_task(
     bootstrap_data_dir: Path | None = None,
     overwrite: bool = True,
 ) -> UCCSDLinearMethodTask:
-    logging.info(f"{task} Starting...\n")
+    logger.info(f"{task} Starting...\n")
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
     result_filename = data_dir / task.dirpath / "result.pickle"
@@ -58,7 +58,7 @@ def run_uccsd_linear_method_task(
         and os.path.exists(info_filename)
         and os.path.exists(data_filename)
     ):
-        logging.info(f"Data for {task} already exists. Skipping...\n")
+        logger.info(f"Data for {task} already exists. Skipping...\n")
         return task
 
     # Get molecular data and molecular Hamiltonian
@@ -115,12 +115,14 @@ def run_uccsd_linear_method_task(
             )
 
     # Optimize ansatz
-    logging.info(f"{task} Optimizing ansatz...\n")
+    logger.info(f"{task} Optimizing ansatz...\n")
     info = defaultdict(list)
     info["nit"] = 0
+    info["regularization"] = [task.linear_method_params.regularization]
+    info["variation"] = [task.linear_method_params.variation]
 
     def callback(intermediate_result: scipy.optimize.OptimizeResult):
-        logging.info(f"Task {task} is on iteration {info['nit']}.\n")
+        logger.info(f"Task {task} is on iteration {info['nit']}.\n")
         info["x"].append(intermediate_result.x)
         info["fun"].append(intermediate_result.fun)
         if hasattr(intermediate_result, "jac"):
@@ -154,9 +156,9 @@ def run_uccsd_linear_method_task(
         callback=callback,
     )
     t1 = timeit.default_timer()
-    logging.info(f"{task} Done optimizing ansatz in {t1 - t0} seconds.\n")
+    logger.info(f"{task} Done optimizing ansatz in {t1 - t0} seconds.\n")
 
-    logging.info(f"{task} Computing energy and other properties...\n")
+    logger.info(f"{task} Computing energy and other properties...\n")
     # Compute energy and other properties of final state vector
     operator = ffsim.UCCSDOpRestrictedReal.from_parameters(
         result.x,
@@ -186,7 +188,7 @@ def run_uccsd_linear_method_task(
     }
     data["nlinop"] = result.nlinop
 
-    logging.info(f"{task} Saving data...\n")
+    logger.info(f"{task} Saving data...\n")
     with open(result_filename, "wb") as f:
         pickle.dump(result, f)
     with open(info_filename, "wb") as f:

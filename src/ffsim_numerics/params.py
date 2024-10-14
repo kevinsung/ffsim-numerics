@@ -1,12 +1,15 @@
 import os
 from dataclasses import asdict, dataclass
+from pathlib import Path
 
 
 @dataclass(frozen=True, kw_only=True)
 class Params:
     @property
-    def dirname(self) -> str:
-        return os.path.join(*[f"{field}-{val}" for field, val in asdict(self).items()])
+    def dirpath(self) -> Path:
+        return Path(
+            os.path.join(*[f"{field}-{val}" for field, val in asdict(self).items()])
+        )
 
 
 @dataclass(frozen=True, kw_only=True)

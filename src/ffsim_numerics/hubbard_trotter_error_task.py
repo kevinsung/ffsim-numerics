@@ -8,12 +8,8 @@ from pathlib import Path
 import numpy as np
 
 from ffsim_numerics.hubbard_time_evo_task import HubbardTimeEvolutionTask
-from ffsim_numerics.hubbard_trotter_gate_count_task import (
-    HubbardTrotterGateCountTask,
-)
-from ffsim_numerics.hubbard_trotter_sim_task import (
-    HubbardTrotterSimTask,
-)
+from ffsim_numerics.hubbard_trotter_gate_count_task import HubbardTrotterGateCountTask
+from ffsim_numerics.hubbard_trotter_sim_task import HubbardTrotterSimTask
 
 logger = logging.getLogger(__name__)
 

@@ -28,7 +28,7 @@ class LUCJInitialParamsTask:
                 if self.bond_distance is None
                 else f"bond_distance-{self.bond_distance:.2f}"
             )
-            / self.lucj_params.dirname
+            / self.lucj_params.dirpath
         )
 
 
