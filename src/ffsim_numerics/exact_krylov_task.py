@@ -1,6 +1,7 @@
 import itertools
 import logging
 import os
+import timeit
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,6 +10,7 @@ import numpy as np
 import scipy.optimize
 import scipy.sparse.linalg
 from pyscf.lib.linalg_helper import safe_eigh
+from tqdm import tqdm
 
 from ffsim_numerics.exact_krylov_vecs_task import ExactKrylovVecsTask
 
@@ -53,8 +55,8 @@ def run_exact_krylov_task(
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
     result_filepath = data_dir / task.dirpath / "result.npy"
-    overlap_mats_filepath = data_dir / task.dirpath / "overlap_mats.npz"
-    hamiltonian_mats_filepath = data_dir / task.dirpath / "hamiltonian_mats.npz"
+    overlap_mat_filepath = data_dir / task.dirpath / "overlap_mat.npy"
+    hamiltonian_mat_filepath = data_dir / task.dirpath / "hamiltonian_mat.npy"
     if (not overwrite) and os.path.exists(result_filepath):
         logger.info(f"Data for {task} already exists. Skipping...")
         return task
@@ -70,8 +72,8 @@ def run_exact_krylov_task(
     norb = mol_data.norb
     nelec = mol_data.nelec
     mol_hamiltonian = mol_data.hamiltonian
-    logging.info(f"Hartree-Fock energy: {mol_data.hf_energy}")
-    logging.info(f"FCI energy: {mol_data.fci_energy}")
+    logger.info(f"Hartree-Fock energy: {mol_data.hf_energy}")
+    logger.info(f"FCI energy: {mol_data.fci_energy}")
 
     # Initialize linear operator
     linop = ffsim.linear_operator(mol_hamiltonian, norb=norb, nelec=nelec)
@@ -92,32 +94,42 @@ def run_exact_krylov_task(
     norms = np.linalg.norm(krylov_vecs, axis=1)
     np.testing.assert_allclose(norms, 1.0, atol=1e-8)
 
-    # Compute ground state energies
+    # Compute overlap and Hamiltonian matrices
     n_vecs, dim = krylov_vecs.shape
     assert n_vecs == task.n_steps + 1
     eye = scipy.sparse.linalg.LinearOperator(
         shape=(dim, dim), matvec=lambda x: x, dtype=complex
     )
-    ground_energies = np.zeros(n_vecs)
-    overlap_mats = []
-    hamiltonian_mats = []
-    for i in range(n_vecs):
-        overlap_mat = krylov_matrix(eye, krylov_vecs[: i + 1])
-        hamiltonian_mat = krylov_matrix(linop, krylov_vecs[: i + 1])
-        eigs, _, _ = safe_eigh(hamiltonian_mat, overlap_mat, lindep=task.lindep)
-        ground_energies[i] = eigs[0]
-        overlap_mats.append(overlap_mat)
-        hamiltonian_mats.append(hamiltonian_mat)
-    logger.info(f"Ground energies: {ground_energies}")
+    logger.info("Computing overlap matrix...")
+    t0 = timeit.default_timer()
+    overlap_mat = krylov_matrix(eye, krylov_vecs)
+    t1 = timeit.default_timer()
+    logger.info(f"Done computing overlap matrix in {t1 - t0} seconds.")
+    logger.info("Computing Hamiltonian matrix...")
+    t0 = timeit.default_timer()
+    hamiltonian_mat = krylov_matrix(linop, krylov_vecs)
+    t1 = timeit.default_timer()
+    logger.info(f"Done computing Hamiltonian matrix in {t1 - t0} seconds.")
+    logger.info("Saving overlap and Hamiltonian matrices to disk...")
+    with open(overlap_mat_filepath, "wb") as f:
+        np.save(f, overlap_mat)
+    with open(hamiltonian_mat_filepath, "wb") as f:
+        np.save(f, hamiltonian_mat)
 
-    # Save results to disk
-    logger.info("Saving results to disk...")
+    # Compute ground state energies
+    logger.info("Computing ground state energies...")
+    ground_energies = np.zeros(n_vecs)
+    for i in range(n_vecs):
+        eigs, _, _ = safe_eigh(
+            hamiltonian_mat[: i + 1, : i + 1],
+            overlap_mat[: i + 1, : i + 1],
+            lindep=task.lindep,
+        )
+        ground_energies[i] = eigs[0]
+    logger.info(f"Ground energies: {ground_energies}")
+    logger.info("Saving ground energies to disk...")
     with open(result_filepath, "wb") as f:
         np.save(f, ground_energies)
-    with open(overlap_mats_filepath, "wb") as f:
-        np.savez(f, *overlap_mats)
-    with open(hamiltonian_mats_filepath, "wb") as f:
-        np.savez(f, *hamiltonian_mats)
 
     logger.info(f"{task} Done.")
     return task
@@ -128,9 +140,13 @@ def krylov_matrix(
 ):
     n_vecs = len(krylov_vecs)
     mat = np.zeros((n_vecs, n_vecs), dtype=complex)
-    for i in range(n_vecs):
+    for i in tqdm(range(n_vecs), desc="Diagonal entries"):
         mat[i, i] = np.vdot(krylov_vecs[i], observable @ krylov_vecs[i])
-    for i, j in itertools.combinations(range(n_vecs), 2):
+    for i, j in tqdm(
+        itertools.combinations(range(n_vecs), 2),
+        total=n_vecs * (n_vecs - 1) // 2,
+        desc="Off-diagonal entries",
+    ):
         mat[i, j] = np.vdot(krylov_vecs[i], observable @ krylov_vecs[j])
         mat[j, i] = mat[i, j].conjugate()
     return mat

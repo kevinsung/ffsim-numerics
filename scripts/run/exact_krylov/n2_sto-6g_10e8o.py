@@ -57,7 +57,7 @@ if MAX_PROCESSES == 1:
             overwrite=OVERWRITE,
         )
 else:
-    with tqdm(total=len(tasks)) as progress:
+    with tqdm(total=len(tasks), desc="Tasks") as progress:
         with ProcessPoolExecutor(MAX_PROCESSES) as executor:
             for task in tasks:
                 future = executor.submit(
