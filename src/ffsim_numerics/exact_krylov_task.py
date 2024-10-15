@@ -140,13 +140,14 @@ def krylov_matrix(
 ):
     n_vecs = len(krylov_vecs)
     mat = np.zeros((n_vecs, n_vecs), dtype=complex)
+    transformed_vecs = observable @ krylov_vecs.T
     for i in tqdm(range(n_vecs), desc="Diagonal entries"):
-        mat[i, i] = np.vdot(krylov_vecs[i], observable @ krylov_vecs[i])
+        mat[i, i] = np.vdot(krylov_vecs[i], transformed_vecs[:, i])
     for i, j in tqdm(
         itertools.combinations(range(n_vecs), 2),
         total=n_vecs * (n_vecs - 1) // 2,
         desc="Off-diagonal entries",
     ):
-        mat[i, j] = np.vdot(krylov_vecs[i], observable @ krylov_vecs[j])
+        mat[i, j] = np.vdot(krylov_vecs[i], transformed_vecs[:, j])
         mat[j, i] = mat[i, j].conjugate()
     return mat
