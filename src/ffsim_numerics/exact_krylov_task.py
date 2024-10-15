@@ -53,6 +53,8 @@ def run_exact_krylov_task(
     os.makedirs(data_dir / task.dirpath, exist_ok=True)
 
     result_filepath = data_dir / task.dirpath / "result.npy"
+    overlap_mats_filepath = data_dir / task.dirpath / "overlap_mats.npz"
+    hamiltonian_mats_filepath = data_dir / task.dirpath / "hamiltonian_mats.npz"
     if (not overwrite) and os.path.exists(result_filepath):
         logger.info(f"Data for {task} already exists. Skipping...")
         return task
@@ -97,17 +99,25 @@ def run_exact_krylov_task(
         shape=(dim, dim), matvec=lambda x: x, dtype=complex
     )
     ground_energies = np.zeros(n_vecs)
+    overlap_mats = []
+    hamiltonian_mats = []
     for i in range(n_vecs):
         overlap_mat = krylov_matrix(eye, krylov_vecs[: i + 1])
         hamiltonian_mat = krylov_matrix(linop, krylov_vecs[: i + 1])
         eigs, _, _ = safe_eigh(hamiltonian_mat, overlap_mat, lindep=task.lindep)
         ground_energies[i] = eigs[0]
+        overlap_mats.append(overlap_mat)
+        hamiltonian_mats.append(hamiltonian_mat)
     logger.info(f"Ground energies: {ground_energies}")
 
-    # Save result to disk
-    logger.info("Saving result to disk...")
+    # Save results to disk
+    logger.info("Saving results to disk...")
     with open(result_filepath, "wb") as f:
         np.save(f, ground_energies)
+    with open(overlap_mats_filepath, "wb") as f:
+        np.savez(f, *overlap_mats)
+    with open(hamiltonian_mats_filepath, "wb") as f:
+        np.savez(f, *hamiltonian_mats)
 
     logger.info(f"{task} Done.")
     return task
