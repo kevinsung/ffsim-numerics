@@ -6,6 +6,7 @@ from pathlib import Path
 
 import ffsim
 import numpy as np
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +94,7 @@ def run_double_factorized_trotter_krylov_vecs_task(
     krylov_vecs[0] = reference_state
     vec = reference_state
     t0 = timeit.default_timer()
-    for i in range(1, task.krylov_n_steps + 1):
+    for i in tqdm(range(1, task.krylov_n_steps + 1), desc="Krylov vecs"):
         vec = ffsim.simulate_trotter_double_factorized(
             vec,
             df_hamiltonian,

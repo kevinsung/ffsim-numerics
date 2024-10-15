@@ -28,13 +28,13 @@ MAX_PROCESSES = 96
 OVERWRITE = True
 
 molecule_name = "n2"
-basis = "sto-6g"
-nelectron, norb = 10, 8
+basis = "6-31g"
+nelectron, norb = 10, 16
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
-time_step_range = [1e-1, 2e-1]
-krylov_n_steps = 50
+time_step_range = [3e-1]
+krylov_n_steps = 30
 order_range = [0, 1]
 trotter_n_steps_range = list(range(1, 6))
 
