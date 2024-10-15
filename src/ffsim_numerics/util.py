@@ -1,5 +1,10 @@
+import itertools
 import os
 import shutil
+
+import numpy as np
+import scipy.sparse.linalg
+from tqdm import tqdm
 
 
 def interaction_pairs_spin_balanced(
@@ -39,3 +44,23 @@ def copy_data(task, src_data_dir: str, dst_data_dir: str, dirs_exist_ok: bool = 
     src_dir = os.path.join(src_data_dir, task.dirpath)
     dst_dir = os.path.join(dst_data_dir, task.dirpath)
     shutil.copytree(src_dir, dst_dir, dirs_exist_ok=dirs_exist_ok)
+
+
+def krylov_matrix(
+    observable: scipy.sparse.linalg.LinearOperator, krylov_vecs: np.ndarray
+):
+    n_vecs = len(krylov_vecs)
+    mat = np.zeros((n_vecs, n_vecs), dtype=complex)
+    transformed_vecs = [
+        observable @ vec for vec in tqdm(krylov_vecs, desc="Transformed vectors")
+    ]
+    for i in tqdm(range(n_vecs), desc="Diagonal entries"):
+        mat[i, i] = np.vdot(krylov_vecs[i], transformed_vecs[i])
+    for i, j in tqdm(
+        itertools.combinations(range(n_vecs), 2),
+        total=n_vecs * (n_vecs - 1) // 2,
+        desc="Off-diagonal entries",
+    ):
+        mat[i, j] = np.vdot(krylov_vecs[i], transformed_vecs[j])
+        mat[j, i] = mat[i, j].conjugate()
+    return mat

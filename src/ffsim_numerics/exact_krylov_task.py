@@ -13,6 +13,7 @@ from pyscf.lib.linalg_helper import safe_eigh
 from tqdm import tqdm
 
 from ffsim_numerics.exact_krylov_vecs_task import ExactKrylovVecsTask
+from ffsim_numerics.util import krylov_matrix
 
 logger = logging.getLogger(__name__)
 
@@ -133,23 +134,3 @@ def run_exact_krylov_task(
 
     logger.info(f"{task} Done.")
     return task
-
-
-def krylov_matrix(
-    observable: scipy.sparse.linalg.LinearOperator, krylov_vecs: np.ndarray
-):
-    n_vecs = len(krylov_vecs)
-    mat = np.zeros((n_vecs, n_vecs), dtype=complex)
-    transformed_vecs = [
-        observable @ vec for vec in tqdm(krylov_vecs, desc="Transformed vectors")
-    ]
-    for i in tqdm(range(n_vecs), desc="Diagonal entries"):
-        mat[i, i] = np.vdot(krylov_vecs[i], transformed_vecs[i])
-    for i, j in tqdm(
-        itertools.combinations(range(n_vecs), 2),
-        total=n_vecs * (n_vecs - 1) // 2,
-        desc="Off-diagonal entries",
-    ):
-        mat[i, j] = np.vdot(krylov_vecs[i], transformed_vecs[j])
-        mat[j, i] = mat[i, j].conjugate()
-    return mat
