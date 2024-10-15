@@ -12,8 +12,8 @@ MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 
 
 molecule_name = "n2"
-basis = "sto-6g"
-nelectron, norb = 10, 8
+basis = "6-31g"
+nelectron, norb = 10, 16
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
@@ -21,7 +21,7 @@ plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
 time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
-lindep_range = [1e-5, 1e-8, 1e-12]
+lindep_range = [1e-4, 1e-8, 1e-12]
 n_steps = 50
 
 molecule_filepath = (

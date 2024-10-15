@@ -12,8 +12,8 @@ MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 
 
 molecule_name = "n2"
-basis = "sto-6g"
-nelectron, norb = 10, 8
+basis = "6-31g"
+nelectron, norb = 10, 16
 molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
 bond_distance = 1.0
 
@@ -21,7 +21,7 @@ plots_dir = os.path.join("plots", molecule_basename)
 os.makedirs(plots_dir, exist_ok=True)
 
 time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
-lindep_range = [1e-5, 1e-8, 1e-12]
+lindep_range = [1e-4, 1e-8, 1e-12]
 n_steps = 50
 
 molecule_filepath = (
@@ -32,9 +32,9 @@ molecule_filepath = (
 )
 mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
 
-for time_step in time_step_range:
+for lindep in lindep_range:
     data = {}
-    for lindep in lindep_range:
+    for time_step in time_step_range:
         task = ExactKrylovTask(
             molecule_basename=molecule_basename,
             bond_distance=bond_distance,
@@ -47,7 +47,7 @@ for time_step in time_step_range:
         ground_energies = np.load(filepath)
         errors = ground_energies - mol_data.fci_energy
         assert all(errors > -1e-8)
-        data[lindep] = np.abs(errors)
+        data[time_step] = abs(errors)
 
     markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
     prop_cycle = plt.rcParams["axes.prop_cycle"]
@@ -57,9 +57,9 @@ for time_step in time_step_range:
 
     fig, ax = plt.subplots(1, 1)
 
-    for lindep, color in zip(lindep_range, colors):
-        errors = data[lindep]
-        ax.plot(range(2, n_steps + 3), errors, label=f"lindep={lindep}")
+    for time_step, color in zip(time_step_range, colors):
+        errors = data[time_step]
+        ax.plot(range(2, n_steps + 3), errors, label=f"∆t={time_step}")
 
     ax.set_xticks(range(2, n_steps + 3, 6))
     ax.set_yscale("log")
@@ -70,7 +70,7 @@ for time_step in time_step_range:
 
     filename = os.path.join(
         plots_dir,
-        f"{os.path.splitext(os.path.basename(__file__))[0]}_time_step-{time_step}.svg",
+        f"{os.path.splitext(os.path.basename(__file__))[0]}_lindep-{lindep}.svg",
     )
     plt.savefig(filename)
     plt.close()
