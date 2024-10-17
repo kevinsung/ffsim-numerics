@@ -1,7 +1,9 @@
+import dataclasses
 import itertools
 import os
 import shutil
 
+import ffsim
 import numpy as np
 import scipy.sparse.linalg
 from tqdm import tqdm
@@ -64,3 +66,44 @@ def krylov_matrix(
         mat[i, j] = np.vdot(krylov_vecs[i], transformed_vecs[j])
         mat[j, i] = mat[i, j].conjugate()
     return mat
+
+
+def truncated_ucj_angles_op(
+    ucj_angles_op: ffsim.UCJAnglesOpSpinBalanced, n_layers: int
+):
+    givens_ansatz_ops = [
+        truncated_givens_ansatz_op(op, n_layers=n_layers)
+        for op in ucj_angles_op.givens_ansatz_ops
+    ]
+    return dataclasses.replace(
+        ucj_angles_op,
+        givens_ansatz_ops=givens_ansatz_ops,
+    )
+
+
+def truncated_givens_ansatz_op(
+    givens_ansatz_op: ffsim.GivensAnsatzOp, n_layers: int
+) -> ffsim.GivensAnsatzOp:
+    norb = givens_ansatz_op.norb
+    assert n_layers <= norb
+    assert len(givens_ansatz_op.interaction_pairs) == norb * (norb - 1) // 2
+
+    if norb % 2:
+        n_keep = n_layers * (norb // 2)
+    else:
+        q, r = divmod(n_layers, 2)
+        n_keep = q * (norb - 1) + r * (norb // 2)
+
+    return ffsim.GivensAnsatzOp(
+        norb,
+        givens_ansatz_op.interaction_pairs[:n_keep],
+        thetas=givens_ansatz_op.thetas[:n_keep],
+        phis=givens_ansatz_op.phis[:n_keep],
+        phase_angles=givens_ansatz_op.phase_angles,
+    )
+
+
+def brickwork(norb: int, n_layers: int):
+    for i in range(n_layers):
+        for j in range(i % 2, norb - 1, 2):
+            yield (j, j + 1)
