@@ -36,6 +36,11 @@ class LUCJAnglesParams(Params):
 class LBFGSBParams(Params):
     maxiter: int
     maxfun: int
+    maxcor: int = 10
+    maxls: int = 20
+    eps: float = 1e-8
+    ftol: float = 1e-8
+    gtol: float = 1e-5
 
 
 @dataclass(frozen=True, kw_only=True)

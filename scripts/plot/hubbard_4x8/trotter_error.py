@@ -15,8 +15,11 @@ ENTROPY = 155903744721100194602646941346278309426
 norb_x = 4
 norb_y = 8
 
-plots_dir = os.path.join("plots", f"hubbard_{norb_x}x{norb_y}")
+plots_dir = os.path.join(
+    "plots", os.path.basename(os.path.dirname(os.path.abspath(__file__)))
+)
 os.makedirs(plots_dir, exist_ok=True)
+
 
 interactions = [8.0]
 filling_denominator = 8
@@ -112,4 +115,5 @@ for interaction in interactions:
         f"{os.path.splitext(os.path.basename(__file__))[0]}_interaction-{interaction}.svg",
     )
     plt.savefig(filename)
+    print(f"Saved figure to {filename}.")
     plt.close()
