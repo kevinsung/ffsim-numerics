@@ -28,6 +28,8 @@ time = 1.0
 n_random = 5
 order = 2
 n_steps_range = [1, 3, 5, 7]
+# order = 1
+# n_steps_range = [1, 11, 21, 31]
 
 
 for interaction in interactions:
@@ -100,7 +102,7 @@ for interaction in interactions:
 
     filename = os.path.join(
         plots_dir,
-        f"{os.path.splitext(os.path.basename(__file__))[0]}_interaction-{interaction}.svg",
+        f"{os.path.splitext(os.path.basename(__file__))[0]}_interaction-{interaction}-order{order}.svg",
     )
     plt.savefig(filename)
     print(f"Saved figure to {filename}.")
