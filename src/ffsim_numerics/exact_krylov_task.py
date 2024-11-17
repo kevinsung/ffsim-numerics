@@ -1,4 +1,3 @@
-import itertools
 import logging
 import os
 import timeit
@@ -10,7 +9,6 @@ import numpy as np
 import scipy.optimize
 import scipy.sparse.linalg
 from pyscf.lib.linalg_helper import safe_eigh
-from tqdm import tqdm
 
 from ffsim_numerics.exact_krylov_vecs_task import ExactKrylovVecsTask
 from ffsim_numerics.util import krylov_matrix
