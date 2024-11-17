@@ -70,7 +70,7 @@ for lindep in lindep_range:
 
     filename = os.path.join(
         plots_dir,
-        f"{os.path.splitext(os.path.basename(__file__))[0]}_lindep-{lindep}.svg",
+        f"{os.path.splitext(os.path.basename(__file__))[0]}_lindep-{lindep}.pdf",
     )
     plt.savefig(filename)
     plt.close()

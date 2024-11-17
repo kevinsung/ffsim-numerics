@@ -99,7 +99,7 @@ ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
 ax.set_title(f"{molecule_name} {basis} ({nelectron}e, {norb}o)")
 
 filename = os.path.join(
-    plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
+    plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.pdf"
 )
 plt.savefig(filename)
 plt.close()

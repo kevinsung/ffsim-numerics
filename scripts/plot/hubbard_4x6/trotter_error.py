@@ -109,7 +109,7 @@ for interaction in interactions:
 
     filename = os.path.join(
         plots_dir,
-        f"{os.path.splitext(os.path.basename(__file__))[0]}_interaction-{interaction}.svg",
+        f"{os.path.splitext(os.path.basename(__file__))[0]}_interaction-{interaction}.pdf",
     )
     plt.savefig(filename)
     plt.close()

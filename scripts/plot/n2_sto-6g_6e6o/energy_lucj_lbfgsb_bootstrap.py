@@ -288,7 +288,7 @@ fig.suptitle(
 
 
 filepath = os.path.join(
-    plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.svg"
+    plots_dir, f"{os.path.splitext(os.path.basename(__file__))[0]}.pdf"
 )
 plt.savefig(filepath)
 plt.close()

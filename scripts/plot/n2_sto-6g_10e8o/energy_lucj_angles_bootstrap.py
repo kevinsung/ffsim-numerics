@@ -286,7 +286,7 @@ for n_reps in n_reps_range:
 
     filepath = os.path.join(
         plots_dir,
-        f"{os.path.splitext(os.path.basename(__file__))[0]}_{connectivity}_n_reps-{n_reps}.svg",
+        f"{os.path.splitext(os.path.basename(__file__))[0]}_{connectivity}_n_reps-{n_reps}.pdf",
     )
     plt.savefig(filepath)
     print(f"Saved figure to {filepath}.")

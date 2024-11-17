@@ -70,7 +70,7 @@ for time_step in time_step_range:
 
     filename = os.path.join(
         plots_dir,
-        f"{os.path.splitext(os.path.basename(__file__))[0]}_time_step-{time_step}.svg",
+        f"{os.path.splitext(os.path.basename(__file__))[0]}_time_step-{time_step}.pdf",
     )
     plt.savefig(filename)
     plt.close()
