@@ -1,2 +1,5 @@
 # ffsim-numerics
-Numerical studies using ffsim
+
+Numerical studies using ffsim.
+
+© Copyright IBM 2024.
