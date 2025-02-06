@@ -48,11 +48,14 @@ def run_lucj_angles_initial_params_task(
         return task
 
     # Get molecular data and molecular Hamiltonian
+    molecule_basename = task.molecule_basename
+    if task.bond_distance is not None:
+        molecule_basename += f"_d-{task.bond_distance:.2f}"
     molecule_filepath = (
         molecules_catalog_dir
         / "data"
         / "molecular_data"
-        / f"{task.molecule_basename}_d-{task.bond_distance:.2f}.json.xz"
+        / f"{molecule_basename}.json.xz"
     )
     mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
     norb = mol_data.norb
