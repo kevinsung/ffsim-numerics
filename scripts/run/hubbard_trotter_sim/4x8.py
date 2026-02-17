@@ -24,7 +24,7 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 24
+MAX_PROCESSES = 2
 OVERWRITE = False
 ENTROPY = 155903744721100194602646941346278309426
 

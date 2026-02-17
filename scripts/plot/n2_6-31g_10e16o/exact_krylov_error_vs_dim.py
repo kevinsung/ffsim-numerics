@@ -8,7 +8,6 @@ import numpy as np
 from ffsim_numerics.exact_krylov_task import ExactKrylovTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
-MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 
 
 molecule_name = "n2"
@@ -25,10 +24,9 @@ lindep_range = [1e-4, 1e-8, 1e-12]
 n_steps = 50
 
 molecule_filepath = (
-    MOLECULES_CATALOG_DIR
-    / "data"
-    / "molecular_data"
-    / f"{molecule_basename}_d-{bond_distance:.2f}.json.xz"
+    Path("molecular_data")
+    / molecule_basename
+    / f"{molecule_basename}_d-{bond_distance:.5f}.json.xz"
 )
 mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
 
