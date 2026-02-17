@@ -36,7 +36,6 @@ def run_lucj_angles_initial_params_task(
     task: LUCJAnglesInitialParamsTask,
     *,
     data_dir: Path,
-    molecules_catalog_dir: Path,
     overwrite: bool = True,
 ) -> LUCJAnglesInitialParamsTask:
     logging.info(f"{task} Starting...\n")
@@ -50,12 +49,9 @@ def run_lucj_angles_initial_params_task(
     # Get molecular data and molecular Hamiltonian
     molecule_basename = task.molecule_basename
     if task.bond_distance is not None:
-        molecule_basename += f"_d-{task.bond_distance:.2f}"
+        molecule_basename += f"_d-{task.bond_distance:.5f}"
     molecule_filepath = (
-        molecules_catalog_dir
-        / "data"
-        / "molecular_data"
-        / f"{molecule_basename}.json.xz"
+        Path("molecular_data") / task.molecule_basename / f"{molecule_basename}.json.xz"
     )
     mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
     norb = mol_data.norb

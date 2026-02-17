@@ -9,7 +9,6 @@ import numpy as np
 from ffsim_numerics.molecule_trotter_error_task import MoleculeTrotterErrorTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
-MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 ENTROPY = 111000497606135858027052605013196846814
 
 

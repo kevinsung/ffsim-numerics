@@ -11,8 +11,6 @@ from ffsim_numerics.uccsd_lbfgsb_task import UCCSDLBFGSBTask
 from ffsim_numerics.uccsd_linear_method_task import UCCSDLinearMethodTask
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
-MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
-
 
 molecule_name = "n2"
 basis = "sto-6g"
@@ -72,19 +70,17 @@ mol_datas_experiment: dict[float, ffsim.MolecularData] = {}
 
 for d in reference_bond_distance_range:
     filepath = os.path.join(
-        MOLECULES_CATALOG_DIR,
-        "data",
         "molecular_data",
-        f"{molecule_basename}_d-{d:.2f}.json.xz",
+        molecule_basename,
+        f"{molecule_basename}_d-{d:.5f}.json.xz",
     )
     mol_datas_reference[d] = ffsim.MolecularData.from_json(filepath, compression="lzma")
 
 for d in bond_distance_range:
     filepath = os.path.join(
-        MOLECULES_CATALOG_DIR,
-        "data",
         "molecular_data",
-        f"{molecule_basename}_d-{d:.2f}.json.xz",
+        molecule_basename,
+        f"{molecule_basename}_d-{d:.5f}.json.xz",
     )
     mol_datas_experiment[d] = ffsim.MolecularData.from_json(
         filepath, compression="lzma"

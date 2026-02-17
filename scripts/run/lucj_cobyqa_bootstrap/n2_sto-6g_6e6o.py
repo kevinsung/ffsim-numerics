@@ -26,7 +26,6 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 MAX_PROCESSES = 1
 OVERWRITE = False
 
@@ -82,7 +81,6 @@ def run_bootstrap(
     run_lucj_cobyqa_task(
         task,
         data_dir=DATA_DIR / "rep-0",
-        molecules_catalog_dir=MOLECULES_CATALOG_DIR,
         overwrite=overwrite,
     )
     # bootstrap
@@ -118,7 +116,6 @@ def run_bootstrap(
             run_lucj_cobyqa_task(
                 task,
                 data_dir=DATA_DIR / f"rep-{rep}",
-                molecules_catalog_dir=MOLECULES_CATALOG_DIR,
                 bootstrap_task=bootstrap_task,
                 overwrite=overwrite,
             )
@@ -201,7 +198,6 @@ if MAX_PROCESSES == 1:
         run_lucj_cobyqa_task(
             final_opt_task,
             data_dir=DATA_DIR / "post-bootstrap",
-            molecules_catalog_dir=MOLECULES_CATALOG_DIR,
             bootstrap_task=bootstrap_task,
             bootstrap_data_dir=DATA_DIR / f"rep-{bootstrap_rep}",
             overwrite=OVERWRITE,
@@ -217,7 +213,6 @@ else:
                     run_lucj_cobyqa_task,
                     final_opt_task,
                     data_dir=DATA_DIR / "post-bootstrap",
-                    molecules_catalog_dir=MOLECULES_CATALOG_DIR,
                     bootstrap_task=bootstrap_task,
                     bootstrap_data_dir=DATA_DIR / f"rep-{bootstrap_rep}",
                     overwrite=OVERWRITE,

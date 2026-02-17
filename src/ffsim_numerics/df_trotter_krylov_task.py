@@ -52,7 +52,6 @@ def run_double_factorized_trotter_krylov_task(
     task: DoubleFactorizedTrotterKrylovTask,
     *,
     data_dir: Path,
-    molecules_catalog_dir: Path,
     overwrite: bool = True,
 ) -> DoubleFactorizedTrotterKrylovTask:
     logger.info(f"{task} Starting...")
@@ -67,10 +66,9 @@ def run_double_factorized_trotter_krylov_task(
 
     # Get molecular data and molecular Hamiltonian
     molecule_filepath = (
-        molecules_catalog_dir
-        / "data"
-        / "molecular_data"
-        / f"{task.molecule_basename}_d-{task.bond_distance:.2f}.json.xz"
+        Path("molecular_data")
+        / task.molecule_basename
+        / f"{task.molecule_basename}_d-{task.bond_distance:.5f}.json.xz"
     )
     mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
     norb = mol_data.norb

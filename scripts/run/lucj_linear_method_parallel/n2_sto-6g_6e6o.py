@@ -26,7 +26,6 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MOLECULES_CATALOG_DIR = Path(os.environ.get("MOLECULES_CATALOG_DIR"))
 MAX_PROCESSES = 96
 OVERWRITE = False
 
@@ -81,7 +80,6 @@ if MAX_PROCESSES == 1:
         run_lucj_linear_method_task(
             task,
             data_dir=DATA_DIR,
-            molecules_catalog_dir=MOLECULES_CATALOG_DIR,
             overwrite=OVERWRITE,
         )
 else:
@@ -92,7 +90,6 @@ else:
                     run_lucj_linear_method_task,
                     task,
                     data_dir=DATA_DIR,
-                    molecules_catalog_dir=MOLECULES_CATALOG_DIR,
                     overwrite=OVERWRITE,
                 )
                 future.add_done_callback(lambda _: progress.update())

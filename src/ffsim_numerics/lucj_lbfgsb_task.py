@@ -42,7 +42,6 @@ def run_lucj_lbfgsb_task(
     task: LUCJLBFGSBTask,
     *,
     data_dir: Path,
-    molecules_catalog_dir: Path,
     bootstrap_task: LUCJLBFGSBTask | None = None,
     bootstrap_data_dir: Path | None = None,
     overwrite: bool = True,
@@ -64,10 +63,9 @@ def run_lucj_lbfgsb_task(
 
     # Get molecular data and molecular Hamiltonian
     molecule_filepath = (
-        molecules_catalog_dir
-        / "data"
-        / "molecular_data"
-        / f"{task.molecule_basename}_d-{task.bond_distance:.2f}.json.xz"
+        Path("molecular_data")
+        / task.molecule_basename
+        / f"{task.molecule_basename}_d-{task.bond_distance:.5f}.json.xz"
     )
     mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
     norb = mol_data.norb
