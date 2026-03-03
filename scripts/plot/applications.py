@@ -20,6 +20,7 @@ os.makedirs(plots_dir, exist_ok=True)
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
 prop_cycle = plt.rcParams["axes.prop_cycle"]
 colors = prop_cycle.by_key()["color"]
+capsize = 4
 
 fig, axes = plt.subplots(
     2,
@@ -90,6 +91,7 @@ for norb_y, marker, color in zip(norb_y_range, markers, colors):
         fmt=f"{marker}--",
         label=f"4x{norb_y}",
         color=color,
+        capsize=capsize,
     )
 
 ax.set_yscale("log")
@@ -174,6 +176,7 @@ for (order, n_steps_range_for_order), marker, color in zip(
         fmt=f"{marker}--",
         label=f"Order {order}",
         color=color,
+        capsize=capsize,
     )
 
 ax.set_yscale("log")
