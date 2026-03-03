@@ -102,7 +102,7 @@ ax.legend()
 ax.set_xlabel("Two-qubit gate count")
 ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
 ax.set_title(
-    rf"Hubbard, Order {order} Trotter, $\nu=1/{filling_denominator}$, U/t={interaction}"
+    rf"Hubbard, order {order} Trotter, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}"
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -187,7 +187,7 @@ ax.legend()
 ax.set_xlabel("Two-qubit gate count")
 ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
 ax.set_title(
-    rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction}"
+    rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}"
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -243,7 +243,7 @@ ax.set_yscale("log")
 ax.legend()
 ax.set_xlabel("Krylov space dimension")
 ax.set_ylabel(r"$|E - E_{\text{exact}}|$")
-ax.set_title(f"{molecule_name} {basis} ({nelectron}e, {norb}o), lindep={lindep}")
+ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o)")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Panel 4 (bottom right): df_trotter_krylov_error_vs_n_step.py with order=1
@@ -306,7 +306,7 @@ ax.legend()
 ax.set_xlabel("Krylov space dimension")
 ax.set_ylabel(r"$|E - E_{\text{exact}}|$")
 ax.set_title(
-    f"{molecule_name} {basis} ({nelectron}e, {norb}o), ∆t={time_step}, order {order}"
+    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter"
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
