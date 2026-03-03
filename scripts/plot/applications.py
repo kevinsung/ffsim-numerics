@@ -24,12 +24,19 @@ colors_5a = ["#6929c4", "#1192e8", "#005d5d", "#9f1853", "#570408"]
 colors_5b = ["#002d9c", "#009d9a", "#9f1853", "#570408", "#a56eff"]
 capsize = 4
 linestyles = [":", "--", "-.", (0, (5, 5)), (0, (3, 1, 1, 1, 1, 1))]
+legend_fontsize = 12
+tick_label_fontsize = 13
+axis_label_fontsize = 14
+title_fontsize = 16
 
 fig, axes = plt.subplots(
     2,
     2,
     figsize=(12, 8),
 )
+for row in axes:
+    for ax in row:
+        ax.tick_params(axis="both", labelsize=tick_label_fontsize)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Panel 1 (top left): hubbard_trotter/error.py
@@ -98,11 +105,12 @@ for norb_y, marker, color in zip(norb_y_range, markers, colors_4a):
     )
 
 ax.set_yscale("log")
-ax.legend()
-ax.set_xlabel("Two-qubit gate count")
-ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
+ax.legend(fontsize=legend_fontsize)
+ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
 ax.set_title(
-    rf"Hubbard, order {order} Trotter, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}"
+    rf"Hubbard, order {order} Trotter, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}",
+    fontsize=title_fontsize,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -183,11 +191,12 @@ for (order, n_steps_range_for_order), marker, color in zip(
     )
 
 ax.set_yscale("log")
-ax.legend()
-ax.set_xlabel("Two-qubit gate count")
-ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$")
+ax.legend(fontsize=legend_fontsize)
+ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
 ax.set_title(
-    rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}"
+    rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}",
+    fontsize=title_fontsize,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -240,10 +249,10 @@ for time_step, color, linestyle in zip(time_step_range, colors_5a, linestyles):
 
 ax.set_xticks(range(2, n_steps_plot + 3, 6))
 ax.set_yscale("log")
-ax.legend()
-ax.set_xlabel("Krylov space dimension")
-ax.set_ylabel(r"$|E - E_{\text{exact}}|$")
-ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o)")
+ax.legend(fontsize=legend_fontsize)
+ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o)", fontsize=title_fontsize)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Panel 4 (bottom right): df_trotter_krylov_error_vs_n_step.py with order=1
@@ -302,11 +311,12 @@ for trotter_n_steps, color, linestyle in zip(
 
 ax.set_xticks(range(2, krylov_n_steps + 3, 6))
 ax.set_yscale("log")
-ax.legend()
-ax.set_xlabel("Krylov space dimension")
-ax.set_ylabel(r"$|E - E_{\text{exact}}|$")
+ax.legend(fontsize=legend_fontsize)
+ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
 ax.set_title(
-    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter"
+    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter",
+    fontsize=title_fontsize,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
