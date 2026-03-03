@@ -284,7 +284,7 @@ exact_krylov_errors = ground_energies - mol_data.fci_energy
 assert all(exact_krylov_errors > -1e-8)
 exact_krylov_errors = np.abs(exact_krylov_errors[: krylov_n_steps + 1])
 
-ax.plot(range(2, krylov_n_steps + 3), exact_krylov_errors, label="exact")
+ax.plot(range(2, krylov_n_steps + 3), exact_krylov_errors, label="exact", color="black")
 for trotter_n_steps, color in zip(trotter_n_steps_range, colors):
     ax.plot(
         range(2, krylov_n_steps + 3),
