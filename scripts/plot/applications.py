@@ -27,7 +27,7 @@ linestyles = [":", "--", "-.", (0, (5, 5)), (0, (3, 1, 1, 1, 1, 1))]
 legend_fontsize = 12
 tick_label_fontsize = 13
 axis_label_fontsize = 14
-title_fontsize = 16
+title_fontsize = 15
 
 fig, axes = plt.subplots(
     2,
