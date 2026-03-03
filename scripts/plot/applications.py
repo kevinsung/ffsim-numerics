@@ -18,8 +18,10 @@ plots_dir = "plots"
 os.makedirs(plots_dir, exist_ok=True)
 
 markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
-prop_cycle = plt.rcParams["axes.prop_cycle"]
-colors = prop_cycle.by_key()["color"]
+colors_4a = ["#9f1853", "#fa4d56", "#570408", "#a56eff"]
+colors_4b = ["#6929c4", "#012749", "#009d9a", "#ee538b"]
+colors_5a = ["#6929c4", "#1192e8", "#005d5d", "#9f1853", "#570408"]
+colors_5b = ["#002d9c", "#009d9a", "#9f1853", "#570408", "#a56eff"]
 capsize = 4
 linestyles = [":", "--", "-.", (0, (5, 5)), (0, (3, 1, 1, 1, 1, 1))]
 
@@ -81,7 +83,7 @@ for norb_y in norb_y_range:
         std_error = np.std(these_errors) / np.sqrt(n_random)
         errors[norb_y, n_steps] = mean, std_error, cx_count, cx_depth
 
-for norb_y, marker, color in zip(norb_y_range, markers, colors):
+for norb_y, marker, color in zip(norb_y_range, markers, colors_4a):
     mean_errors, std_errors, cx_counts, cx_depths = zip(
         *[errors[norb_y, n_steps] for n_steps in n_steps_range]
     )
@@ -165,7 +167,7 @@ for n_steps, order in n_steps_and_order:
     errors[n_steps, order] = mean, std_error, cx_count, cx_depth
 
 for (order, n_steps_range_for_order), marker, color in zip(
-    n_steps_choices.items(), markers, colors
+    n_steps_choices.items(), markers, colors_4b
 ):
     mean_errors, std_errors, cx_counts, cx_depths = zip(
         *[errors[n_steps, order] for n_steps in n_steps_range_for_order]
@@ -227,7 +229,7 @@ for time_step in time_step_range:
     assert all(krylov_errors > -1e-8)
     data[time_step] = abs(krylov_errors)
 
-for time_step, color, linestyle in zip(time_step_range, colors, linestyles):
+for time_step, color, linestyle in zip(time_step_range, colors_5a, linestyles):
     ax.plot(
         range(2, n_steps_plot + 3),
         data[time_step][: len(range(2, n_steps_plot + 3))],
@@ -287,7 +289,9 @@ assert all(exact_krylov_errors > -1e-8)
 exact_krylov_errors = np.abs(exact_krylov_errors[: krylov_n_steps + 1])
 
 ax.plot(range(2, krylov_n_steps + 3), exact_krylov_errors, label="exact", color="black")
-for trotter_n_steps, color, linestyle in zip(trotter_n_steps_range, colors, linestyles):
+for trotter_n_steps, color, linestyle in zip(
+    trotter_n_steps_range, colors_5b, linestyles
+):
     ax.plot(
         range(2, krylov_n_steps + 3),
         data[trotter_n_steps],
