@@ -30,7 +30,13 @@ OVERWRITE = False
 norb_x = 4
 norb_y = 2
 
-n_steps_choices = {0: [1, 71, 141, 221], 1: [1, 41, 81, 121], 2: [1, 11, 21, 31]}
+# n_steps_choices = {0: [1, 71, 141, 221], 1: [1, 41, 81, 121], 2: [1, 11, 21, 31]}
+n_steps_choices = {
+    0: [1, 21, 41, 61],
+    1: [1, 11, 21, 31],
+    2: [1, 3, 5, 7],
+    3: [1, 2, 3],
+}
 n_steps_and_order = list(
     itertools.chain(
         *(
