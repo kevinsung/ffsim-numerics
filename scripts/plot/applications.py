@@ -21,6 +21,7 @@ markers = ["o", "s", "v", "D", "p", "*", "P", "X"]
 prop_cycle = plt.rcParams["axes.prop_cycle"]
 colors = prop_cycle.by_key()["color"]
 capsize = 4
+linestyles = [":", "--", "-.", (0, (5, 5)), (0, (3, 1, 1, 1, 1, 1))]
 
 fig, axes = plt.subplots(
     2,
@@ -226,12 +227,13 @@ for time_step in time_step_range:
     assert all(krylov_errors > -1e-8)
     data[time_step] = abs(krylov_errors)
 
-for time_step, color in zip(time_step_range, colors):
+for time_step, color, linestyle in zip(time_step_range, colors, linestyles):
     ax.plot(
         range(2, n_steps_plot + 3),
         data[time_step][: len(range(2, n_steps_plot + 3))],
         label=f"∆t={time_step}",
         color=color,
+        linestyle=linestyle,
     )
 
 ax.set_xticks(range(2, n_steps_plot + 3, 6))
@@ -285,12 +287,13 @@ assert all(exact_krylov_errors > -1e-8)
 exact_krylov_errors = np.abs(exact_krylov_errors[: krylov_n_steps + 1])
 
 ax.plot(range(2, krylov_n_steps + 3), exact_krylov_errors, label="exact", color="black")
-for trotter_n_steps, color in zip(trotter_n_steps_range, colors):
+for trotter_n_steps, color, linestyle in zip(trotter_n_steps_range, colors, linestyles):
     ax.plot(
         range(2, krylov_n_steps + 3),
         data[trotter_n_steps],
         label=f"n_steps={trotter_n_steps}",
         color=color,
+        linestyle=linestyle,
     )
 
 ax.set_xticks(range(2, krylov_n_steps + 3, 6))
