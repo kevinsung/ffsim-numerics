@@ -210,7 +210,9 @@ for norb_y in norb_y_range:
         std_error = np.std(these_errors) / np.sqrt(n_random)
         errors[norb_y, n_steps] = mean, std_error, cx_count, cx_depth
 
-for norb_y, marker, color in zip(norb_y_range, markers, colors_4a):
+for norb_y, marker, color, linestyle in zip(
+    norb_y_range, markers, colors_4a, linestyles
+):
     mean_errors, std_errors, cx_counts, cx_depths = zip(
         *[errors[norb_y, n_steps] for n_steps in n_steps_range]
     )
@@ -218,7 +220,8 @@ for norb_y, marker, color in zip(norb_y_range, markers, colors_4a):
         cx_counts,
         mean_errors,
         yerr=std_errors,
-        fmt=f"{marker}--",
+        fmt=f"{marker}",
+        linestyle=linestyle,
         label=f"4x{norb_y}",
         color=color,
         capsize=capsize,
@@ -294,8 +297,8 @@ for n_steps, order in n_steps_and_order:
     std_error = np.std(these_errors) / np.sqrt(n_random)
     errors[n_steps, order] = mean, std_error, cx_count, cx_depth
 
-for (order, n_steps_range_for_order), marker, color in zip(
-    n_steps_choices.items(), markers, colors_4b
+for (order, n_steps_range_for_order), marker, color, linestyle in zip(
+    n_steps_choices.items(), markers, colors_4b, linestyles
 ):
     mean_errors, std_errors, cx_counts, cx_depths = zip(
         *[errors[n_steps, order] for n_steps in n_steps_range_for_order]
@@ -304,7 +307,8 @@ for (order, n_steps_range_for_order), marker, color in zip(
         cx_counts,
         mean_errors,
         yerr=std_errors,
-        fmt=f"{marker}--",
+        fmt=f"{marker}",
+        linestyle=linestyle,
         label=f"Order {order}",
         color=color,
         capsize=capsize,
