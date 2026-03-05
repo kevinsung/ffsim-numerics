@@ -327,6 +327,7 @@ ax.set_title(
 # Save
 # ─────────────────────────────────────────────────────────────────────────────
 fig.tight_layout(h_pad=2)
+fig.subplots_adjust(wspace=0.22)
 filename = os.path.join(plots_dir, "applications.pdf")
 plt.savefig(filename)
 print(f"Saved figure to {filename}.")
