@@ -39,129 +39,9 @@ for row in axes:
         ax.tick_params(axis="both", labelsize=tick_label_fontsize)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Panel 1 (top left): exact_krylov_error_vs_dim.py with lindep=1e-12
+# Panel 1 (top left): hubbard_trotter/error.py
 # ─────────────────────────────────────────────────────────────────────────────
 ax = axes[0, 0]
-
-molecule_name = "n2"
-basis = "6-31g"
-nelectron, norb = 10, 16
-molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
-bond_distance = 1.0
-
-time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
-lindep = 1e-12
-n_steps = 50
-n_steps_plot = 30
-
-molecule_filepath = (
-    Path("molecular_data")
-    / molecule_basename
-    / f"{molecule_basename}_d-{bond_distance:.5f}.json.xz"
-)
-mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
-
-data = {}
-for time_step in time_step_range:
-    task = ExactKrylovTask(
-        molecule_basename=molecule_basename,
-        bond_distance=bond_distance,
-        time_step=time_step,
-        n_steps=n_steps,
-        initial_state="hartree-fock",
-        lindep=lindep,
-    )
-    filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
-    ground_energies = np.load(filepath)
-    krylov_errors = ground_energies - mol_data.fci_energy
-    assert all(krylov_errors > -1e-8)
-    data[time_step] = abs(krylov_errors)
-
-for time_step, color, linestyle in zip(time_step_range, colors_5a, linestyles):
-    ax.plot(
-        range(2, n_steps_plot + 3),
-        data[time_step][: len(range(2, n_steps_plot + 3))],
-        label=f"∆t={time_step}",
-        color=color,
-        linestyle=linestyle,
-    )
-
-ax.set_xticks(range(2, n_steps_plot + 3, 6))
-ax.set_yscale("log")
-ax.legend(fontsize=legend_fontsize)
-ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
-ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o)", fontsize=title_fontsize)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Panel 2 (top right): df_trotter_krylov_error_vs_n_step.py with order=1
-# ─────────────────────────────────────────────────────────────────────────────
-ax = axes[0, 1]
-
-time_step = 3e-1
-krylov_n_steps = 30
-trotter_n_steps_range = list(range(1, 6))
-order = 1
-lindep = 1e-12
-
-data = {}
-for trotter_n_steps in trotter_n_steps_range:
-    task = DoubleFactorizedTrotterKrylovTask(
-        molecule_basename=molecule_basename,
-        bond_distance=bond_distance,
-        krylov_n_steps=krylov_n_steps,
-        time_step=time_step,
-        trotter_n_steps=trotter_n_steps,
-        order=order,
-        initial_state="hartree-fock",
-        lindep=lindep,
-    )
-    filepath = DATA_ROOT / "df_trotter_krylov" / task.dirpath / "result.npy"
-    ground_energies = np.load(filepath)
-    krylov_errors = ground_energies - mol_data.fci_energy
-    assert all(krylov_errors > 0)
-    data[trotter_n_steps] = krylov_errors
-
-task = ExactKrylovTask(
-    molecule_basename=molecule_basename,
-    bond_distance=bond_distance,
-    time_step=time_step,
-    n_steps=50,
-    initial_state="hartree-fock",
-    lindep=lindep,
-)
-filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
-ground_energies = np.load(filepath)
-exact_krylov_errors = ground_energies - mol_data.fci_energy
-assert all(exact_krylov_errors > -1e-8)
-exact_krylov_errors = np.abs(exact_krylov_errors[: krylov_n_steps + 1])
-
-ax.plot(range(2, krylov_n_steps + 3), exact_krylov_errors, label="exact", color="black")
-for trotter_n_steps, color, linestyle in zip(
-    trotter_n_steps_range, colors_5b, linestyles
-):
-    ax.plot(
-        range(2, krylov_n_steps + 3),
-        data[trotter_n_steps],
-        label=f"n_steps={trotter_n_steps}",
-        color=color,
-        linestyle=linestyle,
-    )
-
-ax.set_xticks(range(2, krylov_n_steps + 3, 6))
-ax.set_yscale("log")
-ax.legend(fontsize=legend_fontsize)
-ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
-ax.set_title(
-    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter",
-    fontsize=title_fontsize,
-)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Panel 3 (bottom left): hubbard_trotter/error.py
-# ─────────────────────────────────────────────────────────────────────────────
-ax = axes[1, 0]
 
 norb_x = 4
 norb_y_range = [2, 4, 6, 8]
@@ -237,9 +117,9 @@ ax.set_title(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Panel 4 (bottom right): hubbard_4x8/trotter_error.py
+# Panel 2 (top right): hubbard_4x8/trotter_error.py
 # ─────────────────────────────────────────────────────────────────────────────
-ax = axes[1, 1]
+ax = axes[0, 1]
 
 norb_x = 4
 norb_y = 8
@@ -320,6 +200,126 @@ ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
 ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
 ax.set_title(
     rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}",
+    fontsize=title_fontsize,
+)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Panel 3 (bottom left): exact_krylov_error_vs_dim.py with lindep=1e-12
+# ─────────────────────────────────────────────────────────────────────────────
+ax = axes[1, 0]
+
+molecule_name = "n2"
+basis = "6-31g"
+nelectron, norb = 10, 16
+molecule_basename = f"{molecule_name}_{basis}_{nelectron}e{norb}o"
+bond_distance = 1.0
+
+time_step_range = [1e-1, 2e-1, 3e-1, 4e-1, 5e-1]
+lindep = 1e-12
+n_steps = 50
+n_steps_plot = 30
+
+molecule_filepath = (
+    Path("molecular_data")
+    / molecule_basename
+    / f"{molecule_basename}_d-{bond_distance:.5f}.json.xz"
+)
+mol_data = ffsim.MolecularData.from_json(molecule_filepath, compression="lzma")
+
+data = {}
+for time_step in time_step_range:
+    task = ExactKrylovTask(
+        molecule_basename=molecule_basename,
+        bond_distance=bond_distance,
+        time_step=time_step,
+        n_steps=n_steps,
+        initial_state="hartree-fock",
+        lindep=lindep,
+    )
+    filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
+    ground_energies = np.load(filepath)
+    krylov_errors = ground_energies - mol_data.fci_energy
+    assert all(krylov_errors > -1e-8)
+    data[time_step] = abs(krylov_errors)
+
+for time_step, color, linestyle in zip(time_step_range, colors_5a, linestyles):
+    ax.plot(
+        range(2, n_steps_plot + 3),
+        data[time_step][: len(range(2, n_steps_plot + 3))],
+        label=f"∆t={time_step}",
+        color=color,
+        linestyle=linestyle,
+    )
+
+ax.set_xticks(range(2, n_steps_plot + 3, 6))
+ax.set_yscale("log")
+ax.legend(fontsize=legend_fontsize)
+ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o)", fontsize=title_fontsize)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Panel 4 (bottom right): df_trotter_krylov_error_vs_n_step.py with order=1
+# ─────────────────────────────────────────────────────────────────────────────
+ax = axes[1, 1]
+
+time_step = 3e-1
+krylov_n_steps = 30
+trotter_n_steps_range = list(range(1, 6))
+order = 1
+lindep = 1e-12
+
+data = {}
+for trotter_n_steps in trotter_n_steps_range:
+    task = DoubleFactorizedTrotterKrylovTask(
+        molecule_basename=molecule_basename,
+        bond_distance=bond_distance,
+        krylov_n_steps=krylov_n_steps,
+        time_step=time_step,
+        trotter_n_steps=trotter_n_steps,
+        order=order,
+        initial_state="hartree-fock",
+        lindep=lindep,
+    )
+    filepath = DATA_ROOT / "df_trotter_krylov" / task.dirpath / "result.npy"
+    ground_energies = np.load(filepath)
+    krylov_errors = ground_energies - mol_data.fci_energy
+    assert all(krylov_errors > 0)
+    data[trotter_n_steps] = krylov_errors
+
+task = ExactKrylovTask(
+    molecule_basename=molecule_basename,
+    bond_distance=bond_distance,
+    time_step=time_step,
+    n_steps=50,
+    initial_state="hartree-fock",
+    lindep=lindep,
+)
+filepath = DATA_ROOT / "exact_krylov" / task.dirpath / "result.npy"
+ground_energies = np.load(filepath)
+exact_krylov_errors = ground_energies - mol_data.fci_energy
+assert all(exact_krylov_errors > -1e-8)
+exact_krylov_errors = np.abs(exact_krylov_errors[: krylov_n_steps + 1])
+
+ax.plot(range(2, krylov_n_steps + 3), exact_krylov_errors, label="exact", color="black")
+for trotter_n_steps, color, linestyle in zip(
+    trotter_n_steps_range, colors_5b, linestyles
+):
+    ax.plot(
+        range(2, krylov_n_steps + 3),
+        data[trotter_n_steps],
+        label=f"n_steps={trotter_n_steps}",
+        color=color,
+        linestyle=linestyle,
+    )
+
+ax.set_xticks(range(2, krylov_n_steps + 3, 6))
+ax.set_yscale("log")
+ax.legend(fontsize=legend_fontsize)
+ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_title(
+    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter",
     fontsize=title_fontsize,
 )
 
