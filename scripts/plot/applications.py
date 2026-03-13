@@ -256,7 +256,7 @@ ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
 ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
-ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o)", fontsize=title_fontsize)
+ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o), exact evolution", fontsize=title_fontsize)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Panel 4 (bottom right): df_trotter_krylov_error_vs_n_step.py with order=1
