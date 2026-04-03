@@ -112,7 +112,7 @@ ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
 ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
 ax.set_title(
-    rf"Hubbard, order {order} Trotter, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}",
+    rf"Hubbard, order {order} Trotter, 1/{filling_denominator} filling, U/t={interaction:.0f}",
     fontsize=title_fontsize,
 )
 
@@ -199,7 +199,7 @@ ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
 ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
 ax.set_title(
-    rf"Hubbard {norb_x}x{norb_y}, $\nu=1/{filling_denominator}$, U/t={interaction:.0f}",
+    rf"Hubbard {norb_x}x{norb_y}, 1/{filling_denominator} filling, U/t={interaction:.0f}",
     fontsize=title_fontsize,
 )
 
