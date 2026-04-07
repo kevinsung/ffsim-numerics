@@ -110,7 +110,7 @@ for norb_y, marker, color, linestyle in zip(
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize)
 ax.set_title(
     rf"Hubbard, order {order} Trotter, 1/{filling_denominator} filling, U/t={interaction:.0f}",
     fontsize=title_fontsize,
@@ -197,7 +197,7 @@ for (order, n_steps_range_for_order), marker, color, linestyle in zip(
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|\psi - \psi_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize)
 ax.set_title(
     rf"Hubbard {norb_x}x{norb_y}, 1/{filling_denominator} filling, U/t={interaction:.0f}",
     fontsize=title_fontsize,
