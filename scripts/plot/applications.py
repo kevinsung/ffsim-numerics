@@ -255,7 +255,7 @@ ax.set_xticks(range(2, n_steps_plot + 3, 6))
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize)
 ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o), exact evolution", fontsize=title_fontsize)
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -317,7 +317,7 @@ ax.set_xticks(range(2, krylov_n_steps + 3, 6))
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|E - E_{\text{exact}}|$", fontsize=axis_label_fontsize)
+ax.set_ylabel(r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize)
 ax.set_title(
     f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter",
     fontsize=title_fontsize,
