@@ -110,7 +110,9 @@ for norb_y, marker, color, linestyle in zip(
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize)
+ax.set_ylabel(
+    r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize
+)
 ax.set_title(
     rf"Hubbard, order {order} Trotter, 1/{filling_denominator} filling, U/t={interaction:.0f}",
     fontsize=title_fontsize,
@@ -197,7 +199,9 @@ for (order, n_steps_range_for_order), marker, color, linestyle in zip(
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize)
+ax.set_ylabel(
+    r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize
+)
 ax.set_title(
     rf"Hubbard {norb_x}x{norb_y}, 1/{filling_denominator} filling, U/t={interaction:.0f}",
     fontsize=title_fontsize,
@@ -255,8 +259,12 @@ ax.set_xticks(range(2, n_steps_plot + 3, 6))
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize)
-ax.set_title(f"N$_2$ / 6-31G ({nelectron}e, {norb}o), exact evolution", fontsize=title_fontsize)
+ax.set_ylabel(
+    r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize
+)
+ax.set_title(
+    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), exact evolution", fontsize=title_fontsize
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Panel 4 (bottom right): df_trotter_krylov_error_vs_n_step.py with order=1
@@ -317,7 +325,9 @@ ax.set_xticks(range(2, krylov_n_steps + 3, 6))
 ax.set_yscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Krylov space dimension", fontsize=axis_label_fontsize)
-ax.set_ylabel(r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize)
+ax.set_ylabel(
+    r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize
+)
 ax.set_title(
     f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter",
     fontsize=title_fontsize,
