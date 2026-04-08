@@ -87,7 +87,7 @@ for norb_y in norb_y_range:
             data[norb_y, n_steps, spawn_index][0] for spawn_index in range(n_random)
         ]
         mean = np.mean(these_errors)
-        std_error = np.std(these_errors) / np.sqrt(n_random)
+        std_error = np.std(these_errors)
         errors[norb_y, n_steps] = mean, std_error, cx_count, cx_depth
 
 for norb_y, marker, color, linestyle in zip(
@@ -176,7 +176,7 @@ for n_steps, order in n_steps_and_order:
         data[n_steps, order, spawn_index][0] for spawn_index in range(n_random)
     ]
     mean = np.mean(these_errors)
-    std_error = np.std(these_errors) / np.sqrt(n_random)
+    std_error = np.std(these_errors)
     errors[n_steps, order] = mean, std_error, cx_count, cx_depth
 
 for (order, n_steps_range_for_order), marker, color, linestyle in zip(
