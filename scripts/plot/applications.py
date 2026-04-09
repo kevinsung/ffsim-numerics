@@ -108,7 +108,8 @@ for norb_y, marker, color, linestyle in zip(
     )
 
 ax.set_yscale("log")
-ax.legend(fontsize=legend_fontsize)
+ax.set_xscale("log")
+ax.legend(fontsize=legend_fontsize, loc="lower left")
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
 ax.set_ylabel(
     r"$\|\psi_\text{Trotter} - \psi_\text{exact}\|_2$", fontsize=axis_label_fontsize
@@ -197,6 +198,7 @@ for (order, n_steps_range_for_order), marker, color, linestyle in zip(
     )
 
 ax.set_yscale("log")
+ax.set_xscale("log")
 ax.legend(fontsize=legend_fontsize)
 ax.set_xlabel("Two-qubit gate count", fontsize=axis_label_fontsize)
 ax.set_ylabel(
