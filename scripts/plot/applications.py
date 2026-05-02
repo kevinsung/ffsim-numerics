@@ -11,6 +11,8 @@ from ffsim_numerics.df_trotter_krylov_task import DoubleFactorizedTrotterKrylovT
 from ffsim_numerics.exact_krylov_task import ExactKrylovTask
 from ffsim_numerics.hubbard_trotter_error_task import HubbardTrotterErrorTask
 
+plt.rcParams["font.family"] = "Latin Modern Sans"
+
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 ENTROPY = 155903744721100194602646941346278309426
 
@@ -24,10 +26,10 @@ colors_5a = ["#6929c4", "#1192e8", "#005d5d", "#9f1853", "#570408"]
 colors_5b = ["#002d9c", "#009d9a", "#9f1853", "#570408", "#a56eff"]
 capsize = 4
 linestyles = [":", "--", "-.", (0, (5, 5)), (0, (3, 1, 1, 1, 1, 1))]
-legend_fontsize = 12
-tick_label_fontsize = 13
-axis_label_fontsize = 14
-title_fontsize = 15
+legend_fontsize = 13
+tick_label_fontsize = 14
+axis_label_fontsize = 16
+title_fontsize = 18
 
 fig, axes = plt.subplots(
     2,
@@ -331,7 +333,7 @@ ax.set_ylabel(
     r"$|E_\text{KQD} - E_\text{exact}|$ ($E_\text{h}$)", fontsize=axis_label_fontsize
 )
 ax.set_title(
-    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), ∆t={time_step}, order {order} Trotter",
+    f"N$_2$ / 6-31G ({nelectron}e, {norb}o), $\Delta t$={time_step}, order {order} Trotter",
     fontsize=title_fontsize,
 )
 
