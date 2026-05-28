@@ -23,8 +23,8 @@ logging.basicConfig(
 
 DATA_ROOT = Path(os.environ.get("FFSIM_NUMERICS_DATA_ROOT", "data"))
 DATA_DIR = DATA_ROOT / os.path.basename(os.path.dirname(os.path.abspath(__file__)))
-MAX_PROCESSES = 96
-OVERWRITE = True
+MAX_PROCESSES = 48
+OVERWRITE = False
 
 molecule_name = "n2"
 basis = "6-31g"
